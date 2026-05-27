@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privé Belek — Oda Seçimi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#060f09}
+.bg{position:fixed;inset:0;z-index:0}
+.bg img{width:100%;height:100%;object-fit:cover;filter:brightness(.5) saturate(.8)}
+.ov1{position:fixed;inset:0;z-index:1;background:radial-gradient(ellipse at center,rgba(0,0,0,.1),rgba(0,0,0,.6))}
+.ov2{position:fixed;inset:0;z-index:2;background:linear-gradient(to bottom,rgba(0,0,0,.7) 0%,rgba(0,0,0,.15) 30%,rgba(0,0,0,.15) 65%,rgba(0,0,0,.75) 100%)}
+
+/* TOP BAR */
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 44px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;opacity:0;animation:fi 1s .3s ease forwards}
+.back-btn{font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.3em;color:rgba(232,213,168,.75);text-decoration:none;text-transform:uppercase;display:flex;align-items:center;gap:10px;justify-self:start;transition:color .3s}
+.back-btn::before{content:'←';font-size:14px;color:#C9A96E;transition:transform .3s}
+.back-btn:hover{color:#F5F1EB}.back-btn:hover::before{transform:translateX(-4px)}
+.step-w{display:flex;flex-direction:column;align-items:center;gap:5px;justify-self:center}
+.step-circle{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(201,169,110,.5);background:rgba(6,15,9,.6);backdrop-filter:blur(10px)}
+.step-num{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:#E8D5A8}
+.step-lbl{font-family:'Montserrat',sans-serif;font-size:7.5px;letter-spacing:.4em;text-transform:uppercase;color:#C9A96E;white-space:nowrap}
+.lang-sw{display:flex;gap:2px;justify-self:end}
+.lb2{font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.12em;color:rgba(245,241,235,.4);background:none;border:none;cursor:pointer;padding:5px 7px;text-transform:uppercase;position:relative;transition:color .3s}
+.lb2.active{color:#E8D5A8;font-weight:500}
+.lb2.active::after{content:'';position:absolute;bottom:0;left:7px;right:7px;height:.5px;background:#C9A96E}
+
+/* HEADER */
+.hdr{position:fixed;top:90px;left:0;right:0;z-index:100;text-align:center;opacity:0;animation:fi 1s .7s ease forwards}
+.hotel-badge{font-family:'Montserrat',sans-serif;font-size:8px;letter-spacing:.5em;text-transform:uppercase;color:#C9A96E;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:10px}
+.hotel-badge::before,.hotel-badge::after{content:'';width:24px;height:.5px;background:rgba(201,169,110,.4)}
+.hdr-title{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,3vw,38px);font-weight:300;letter-spacing:.12em;color:#F5F1EB;text-shadow:0 4px 24px rgba(0,0,0,.8)}
+.hdr-title em{color:#C9A96E;font-style:italic}
+.hdr-sub{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.4em;text-transform:uppercase;color:rgba(232,213,168,.65);margin-top:7px}
+
+/* SCROLL AREA */
+.rw{position:fixed;top:200px;bottom:16px;left:0;right:0;z-index:10;overflow-y:auto;overflow-x:hidden;opacity:0;animation:fi 1.2s 1.1s ease forwards}
+.rw::-webkit-scrollbar{width:2px}
+.rw::-webkit-scrollbar-thumb{background:rgba(201,169,110,.2)}
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:10px;padding:0 36px 16px;max-width:1400px;margin:0 auto}
+
+/* ROOM CARD */
+.rc{background:linear-gradient(160deg,rgba(10,24,15,.9),rgba(4,10,7,.96));border:1px solid rgba(201,169,110,.15);overflow:hidden;transition:border-color .4s,box-shadow .4s}
+.rc:hover{border-color:rgba(201,169,110,.4);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.rc.sel{border:1.5px solid #C9A96E}
+.rc-top-line{height:1.5px;background:linear-gradient(90deg,transparent,#C9A96E,transparent);opacity:0;transition:opacity .4s}
+.rc:hover .rc-top-line,.rc.sel .rc-top-line{opacity:1}
+
+/* IMAGE SLIDER */
+.img-slider{position:relative;width:100%;height:175px;overflow:hidden;background:#0a1a10}
+.img-track{display:flex;height:100%;transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.img-slide{flex:0 0 100%;height:100%;position:relative}
+.img-slide img{width:100%;height:100%;object-fit:cover;filter:brightness(.85);transition:filter .3s}
+.rc:hover .img-slide img{filter:brightness(.95)}
+.cat-badge{position:absolute;top:8px;left:8px;font-family:'Montserrat',sans-serif;font-size:6px;letter-spacing:.25em;text-transform:uppercase;color:#E8D5A8;background:rgba(6,15,9,.72);border:.5px solid rgba(201,169,110,.28);padding:3px 8px;backdrop-filter:blur(4px)}
+
+/* Slider controls */
+.sl-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:28px;height:28px;border-radius:50%;background:rgba(6,15,9,.65);border:.5px solid rgba(201,169,110,.3);color:#C9A96E;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;opacity:0}
+.img-slider:hover .sl-arrow{opacity:1}
+.sl-arrow:hover{background:rgba(201,169,110,.2)}
+.sl-prev{left:7px}.sl-next{right:7px}
+.sl-dots{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
+.sl-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.35);transition:background .3s;cursor:pointer}
+.sl-dot.active{background:#C9A96E}
+
+/* Card body */
+.cb{padding:12px 16px 14px}
+.rn{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;letter-spacing:.06em;color:#F5F1EB;line-height:1.2;margin-bottom:2px}
+.rsz{font-family:'Montserrat',sans-serif;font-size:7.5px;letter-spacing:.3em;text-transform:uppercase;color:rgba(201,169,110,.6);margin-bottom:8px}
+.rr{width:24px;height:.5px;background:linear-gradient(90deg,transparent,#C9A96E,transparent);margin:0 0 8px}
+.rf{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.rfi{display:flex;align-items:center;gap:4px;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:300;color:rgba(245,241,235,.7)}
+.ball{width:6px;height:6px;border-radius:50%;background:radial-gradient(circle at 33% 33%,#F5E6C0 0%,#C9A96E 50%,#A07840 100%);flex-shrink:0}
+.rd{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:300;color:rgba(245,241,235,.55);line-height:1.6;margin-bottom:10px}
+.rcap{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.caplbl{font-family:'Montserrat',sans-serif;font-size:7.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,169,110,.5)}
+.persons{display:flex;gap:3px}
+.pi{width:13px;height:13px;color:#C9A96E;opacity:.7}
+.bsel{width:100%;font-family:'Montserrat',sans-serif;font-size:8px;letter-spacing:.4em;text-transform:uppercase;color:#E8D5A8;background:rgba(6,15,9,.5);padding:10px 0;border:.5px solid rgba(201,169,110,.28);cursor:pointer;position:relative;overflow:hidden;transition:all .4s}
+.bsel::before{content:'';position:absolute;inset:0;background:#C9A96E;transform:scaleX(0);transform-origin:left;transition:transform .4s;z-index:-1}
+.bsel:hover{color:#060f09;border-color:#C9A96E}.bsel:hover::before{transform:scaleX(1)}
+.bsel.sel{background:#C9A96E;color:#060f09;border-color:#C9A96E}
+
+/* LIGHTBOX */
+.lbox{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.96);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.lbox.open{opacity:1;pointer-events:all}
+.lbox img{max-width:90vw;max-height:88vh;object-fit:contain}
+.lbx-close{position:absolute;top:18px;right:22px;width:38px;height:38px;border-radius:50%;background:rgba(201,169,110,.15);border:.5px solid rgba(201,169,110,.3);color:#C9A96E;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lbx-prev,.lbx-next{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(201,169,110,.15);border:.5px solid rgba(201,169,110,.3);color:#C9A96E;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lbx-prev{left:20px}.lbx-next{right:20px}
+.lbx-ctr{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.3em;color:rgba(201,169,110,.5)}
+
+@keyframes fi{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="bg"><img src="5.webp" alt=""></div>
+<div class="ov1"></div><div class="ov2"></div>
+
+<div class="top-bar">
+  <a class="back-btn" href="page4.html">Geri</a>
+  <div class="step-w">
+    <div class="step-circle"><span class="step-num">4</span></div>
+    <div class="step-lbl">Oda Seçimi</div>
+  </div>
+  <div class="lang-sw">
+    <button class="lb2 active">TR</button>
+    <button class="lb2">DE</button>
+    <button class="lb2">EN</button>
+    <button class="lb2">RU</button>
+  </div>
+</div>
+
+<div class="hdr">
+  <div class="hotel-badge" id="hBadge"></div>
+  <div class="hdr-title">Odanızı <em>Seçin</em></div>
+  <div class="hdr-sub">Konforunuz, Önceliğiniz</div>
+</div>
+
+<div class="rw"><div class="rg" id="rg"></div></div>
+
+<div class="lbox" id="lbox">
+  <button class="lbx-close" id="lbClose">✕</button>
+  <button class="lbx-prev" id="lbPrev">‹</button>
+  <img id="lbImg" src="" alt="">
+  <button class="lbx-next" id="lbNext">›</button>
+  <div class="lbx-ctr" id="lbCtr"></div>
+</div>
+
+<script>
+/* ══ HOTEL DATA — oteller buraya eklenecek ══ */
+const HOTELS = {
+sueno: {
+  name: 'Sueno Deluxe Belek',
+  folder: '01_SUENO_DELUXE_BELEK',
+  rooms: [
+    {
+      name:'Deluxe Room', cat:'Deluxe', size:'45 m²',
+      imgs:['Deluxe_Room_1.jpg','Deluxe_Room_1.webp','Deluxe_Room_2.webp','Deluxe_Room_SeaView.jpg'],
+      feat:['Deniz / Golf Manzarası','Balkon','Yağmur Duş','Wi-Fi'],
+      desc:'45 m², deniz veya golf manzaralı. Yağmur duş, çift lavabo, Schiller kapsül kahve, günlük minibar. Balkon ve oturma grubu.',
+      cap:'4'
+    },
+    {
+      name:'Deluxe Room Infinity', cat:'Swim-Up', size:'45 m² + 23 m² Havuz',
+      imgs:['Deluxe_Room_Infinity_1.webp','Deluxe_Room_Infinity_2.webp','Deluxe_Room_Infinity_3.webp'],
+      feat:['Deniz Manzarası','23 m² Özel Havuz','Hamak Sandalye','Geç Check-out'],
+      desc:'Deniz manzaralı, 23 m² özel havuzlu swim-up oda. Meyve tabağı & şarap ikramı, şezlong ve hamak.',
+      cap:'4'
+    },
+    {
+      name:'Deluxe Suite', cat:'Suite', size:'70 m²',
+      imgs:['Deluxe_Suite_Room.webp','Deluxe_Sueno_Suite_1.webp','Deluxe_Sueno_Suite_2.webp'],
+      feat:['Deniz / Golf Manzarası','2 Banyo','Küvet','Oturma Odası'],
+      desc:'70 m², ayrı oturma ve yatak odası. 2 banyo, yağmur duş ve küvet, 2 LED TV.',
+      cap:'5'
+    },
+    {
+      name:'Deluxe Sueno Suite', cat:'Suite + Havuz', size:'70 m² + 30–38 m² Havuz',
+      imgs:['Deluxe_Sueno_Suite_1.webp','Deluxe_Sueno_Suite_2.webp','Deluxe_Suite_Room.webp'],
+      feat:['Deniz Manzarası','Özel Havuz','Özel Minibar','Hamak Sandalye'],
+      desc:'Deniz manzaralı, 30–38 m² özel havuzlu suite. Özel minibar (Rakı, Gin, Vodka), meyve tabağı.',
+      cap:'5'
+    },
+    {
+      name:'Superior Suite', cat:'Superior Suite', size:'70 m²',
+      imgs:['Superior_Sueno_Suite.webp'],
+      feat:['Deniz Manzarası','Jakuzi','Bvlgari Ürünleri','Özel Minibar'],
+      desc:'70 m², Bvlgari banyosu, balkon veya oda içi jakuzi. Ayrı oturma odası, özel minibar ve meyve tabağı.',
+      cap:'5'
+    },
+    {
+      name:'Superior Suite Exclusive', cat:'Exclusive Suite', size:'100 m²',
+      imgs:['Superior_Sueno_Suite.webp'],
+      feat:['Deniz Manzarası','2 Yatak Odası','Jakuzi','Corner Bar'],
+      desc:'100 m², 2 yatak + oturma odası. Corner bar, yemek masası, jakuzi, Bvlgari ürünleri ve VIP buket.',
+      cap:'6'
+    },
+    {
+      name:'Superior Sueno Suite', cat:'Premium Suite', size:'100 m² + 75 m² Havuz',
+      imgs:['Superior_Sueno_Suite.webp'],
+      feat:['Deniz Manzarası','75 m² Özel Havuz','Özel Butler','VIP Transfer'],
+      desc:'100 m² + 75 m² özel havuz. Özel butler, ücretsiz alakart, VIP transfer, jakuzi. En seçkin suite.',
+      cap:'6'
+    },
+    {
+      name:'King Suite', cat:'King Suite', size:'385 m²',
+      imgs:['King_Suite.jpg'],
+      feat:['Deniz Manzarası','3 Yatak Odası','Özel SPA','Sınırsız Golf'],
+      desc:'385 m², 3 yatak odası, özel butler, VIP Pavilion. Özel SPA & Fitness (hamam, sauna). Sınırsız golf.',
+      cap:'8'
+    },
+    {
+      name:'Island Villa', cat:'Villa', size:'317 m²',
+      imgs:['Island_Villa.webp'],
+      feat:['5 Yatak Odası','Özel SPA','Tam Mutfak','Özel Butler'],
+      desc:'317 m², 5 yatak odalı ada villası. Tam mutfak, özel SPA (hamam, sauna, masaj), 7 TV, VIP transfer, sınırsız golf.',
+      cap:'9'
+    },
+  ]
+},
+cornelia: {
+  name: 'Cornelia Diamond Golf Resort & Spa',
+  folder: '02_CORNELIA_DIAMOND',
+  rooms: [
+    {
+      name:'Standard Room', cat:'Classic', size:'42–50 m²',
+      imgs:['Standard_Room_1.webp','Standard_Room_2.webp','Classic_Room.jpg'],
+      feat:['Bahçe / Deniz Manzarası','Balkon/Teras','Minibar','Wi-Fi'],
+      desc:'42–50 m², bahçe, kısmi veya tam deniz manzaralı. Meyve tabağı, turn-down servisi, balkon/teras.',
+      cap:'3'
+    },
+    {
+      name:'Executive Classic Room', cat:'Executive', size:'42–50 m²',
+      imgs:['Executive_Classic_Room.jpg','Executive_Room_1.webp'],
+      feat:['Tam Deniz Manzarası','Üst Kat','HERMES Ürünleri'],
+      desc:'Tam deniz manzaralı, üst katta konumlanan Executive oda. VIP setup ve özel karşılama.',
+      cap:'3'
+    },
+    {
+      name:'Family Garden Room', cat:'Family', size:'70 m²',
+      imgs:['Family_Room.jpg'],
+      feat:['Bahçe Manzarası','2 Yatak Odası','2 Balkon','Bağlantılı Kapı'],
+      desc:'70 m², 2 ayrı yatak odası, 2 banyo ve 2 balkon. Aileler için ideal, bağlantılı kapı seçeneği.',
+      cap:'5'
+    },
+    {
+      name:'Family Lake Room', cat:'Family Swim-Up', size:'80 m²',
+      imgs:['Lake_Family_Room_1.webp','Family_Room.jpg'],
+      feat:['Havuz Manzarası','Havuza Direkt Erişim','2 Yatak Odası','Teras'],
+      desc:'80 m², teras üzerinden havuza doğrudan erişim. 2 yatak odası, 2 banyo, bağlantılı kapı.',
+      cap:'5'
+    },
+    {
+      name:'Golf Suite', cat:'Suite', size:'65 m²',
+      imgs:['Golf_Suite.jpeg','Suite_Interior_1.webp','Suite_Interior_2.webp'],
+      feat:['Bahçe / Golf Manzarası','Oturma Odası','Balkon/Teras','VIP Setup'],
+      desc:'65 m², bahçe ve golf manzaralı. Ayrı yatak ve oturma odası, balkon, turn-down ve VIP setup.',
+      cap:'3'
+    },
+    {
+      name:'Blue Suite', cat:'Blue Suite', size:'80 m²',
+      imgs:['Blue_Suite.jpg','Suite_Interior_1.webp','Suite_Interior_2.webp'],
+      feat:['Tam Deniz Manzarası','Jakuzi','Butler Servisi','HERMES Ürünleri'],
+      desc:'80 m², tam deniz manzaralı. Jakuzi, home theatre, kitchenette, 2 balkon, butler servisi.',
+      cap:'3'
+    },
+    {
+      name:'Diamond Suite', cat:'Diamond Suite', size:'310 m²',
+      imgs:['Diamond_Suite_Pool_1.webp','Suite_Interior_1.webp'],
+      feat:['Tam Deniz Manzarası','Özel İç Havuz','Jakuzi + Sauna','Butler'],
+      desc:'310 m², 3 katlı, 2 yatak odası. Özel iç havuz, jakuzi, sauna, 8 kişilik yemek odası.',
+      cap:'5'
+    },
+    {
+      name:'Presidential Suite', cat:'Presidential', size:'700 m²',
+      imgs:['Presidential_Suite.jpg'],
+      feat:['700 m²','Özel İç Havuz','Fitness Alanı','3 Yatak Odası'],
+      desc:'700 m², 3 yatak odası, özel iç havuz, jakuzi, sauna, fitness, home theatre, bar ve yemek odası.',
+      cap:'6'
+    },
+    {
+      name:'Lake Villa', cat:'Villa', size:'100 m²',
+      imgs:['Lake_Villa_1.webp'],
+      feat:['Havuza Direkt Erişim','2–3 Yatak Odası','Jakuzi','Teras'],
+      desc:'100 m², havuza doğrudan erişimli villa. 2–3 yatak odası, jakuzi, teras ve VIP setup.',
+      cap:'6'
+    },
+  ]
+},
+sueno_golf: {
+  name: 'Sueno Golf Belek',
+  folder: '03_SUENO_GOLF_BELEK',
+  rooms: [
+    {
+      name:'Standard Room', cat:'Standard', size:'30–35 m²',
+      imgs:['Standard_Room.jpeg'],
+      feat:['Golf / Kara Manzarası','Balkon','Minibar','Wi-Fi'],
+      desc:'30–35 m², golf veya kara manzaralı. Balkon, klima, LCD TV ve minibar ile konforlu başlangıç odası.',
+      cap:'3'
+    },
+    {
+      name:'Senior Room', cat:'Senior', size:'45 m²',
+      imgs:['Senior_Room.jpg','Senior_Room_1.webp','Senior_Room_2.webp','Senior_Room_3.webp'],
+      feat:['Golf / Kara Manzarası','Küvet','Geniş Oturma Alanı','Balkon'],
+      desc:'45 m², geniş oturma alanı ve balkonlu. Küvet/duş, bornoz/terlik, LCD TV, minibar.',
+      cap:'4'
+    },
+    {
+      name:'Junior Suite', cat:'Junior Suite', size:'50–60 m²',
+      imgs:['Junior_Suite_Room.webp','Golf_View_1.webp'],
+      feat:['Golf Manzarası','Küvet','Oturma Alanı','Geniş Balkon'],
+      desc:'50–60 m², golf manzaralı. Ayrı yatak ve oturma alanı, küvet, VIP buket ve geniş balkon.',
+      cap:'4'
+    },
+    {
+      name:'Jacuzzi Suite', cat:'Jacuzzi Suite', size:'65 m²',
+      imgs:['Jacuzzi_Suite.jpg','Golf_View_1.webp'],
+      feat:['Golf Manzarası','Oda İçi Jakuzi','Golf Manzaralı Teras','Özel Tasarım'],
+      desc:'65 m², golf sahasına bakan teras ve oda içi jakuzi. Özel tasarım, duş, kasa ve minibar.',
+      cap:'3'
+    },
+    {
+      name:'Suite Room', cat:'Suite', size:'75 m²',
+      imgs:['Suite_Room.webp','Suite_Room_1.webp','Suite_Room_2.webp'],
+      feat:['Golf Manzarası','2 Banyo','Oturma Odası','Geniş Balkon'],
+      desc:'75 m², ayrı yatak ve oturma odası. 2 banyo (küvet/duş), 2 LCD TV, geniş balkon.',
+      cap:'5'
+    },
+  ]
+},
+kaya: {
+  name: 'Kaya Palazzo Golf Resort',
+  folder: '04_KAYA_PALAZZO',
+  rooms: [
+    {
+      name:'Superior Room Sea View', cat:'Superior', size:'39–41 m²',
+      imgs:['Superior_Room_Sea_View_1.webp','Superior_Room_Sea_View_2.webp','General_View_1.webp'],
+      feat:['Deniz Manzarası','Balkon','Minibar & Snack','Wi-Fi'],
+      desc:'39–41 m², deniz manzaralı. Balkon, giyinme bölümü, 42" LED TV, minibar & snack set up.',
+      cap:'4'
+    },
+    {
+      name:'Swim-Up Superior Room', cat:'Swim-Up', size:'39 m²',
+      imgs:['Superior_Room_SwimUp.webp','General_View_1.webp'],
+      feat:['Havuza Direkt Erişim','Havuz Manzarası','Aroma Therapy Kozmetik','Teras'],
+      desc:'39 m², terasa açılan havuza doğrudan erişim. Aroma therapy kozmetik, minibar & snack set up.',
+      cap:'3'
+    },
+    {
+      name:'Suite Sea View', cat:'Suite', size:'Geniş',
+      imgs:['Suite_SeaView.webp'],
+      feat:['Deniz Manzarası','Suite Konfor'],
+      desc:'Deniz manzaralı suite oda. Lüks konfor ve Kaya Palazzo\'nun imza hizmetleriyle.',
+      cap:'3'
+    },
+    {
+      name:'Palazzo Suite Sea View', cat:'Palazzo Suite', size:'108 m²',
+      imgs:['Palazzo_Suite_SeaView.webp'],
+      feat:['Deniz Manzarası','Hidromasajlı Küvet','Nespresso','Bvlgari Kozmetik'],
+      desc:'108 m², ayrı yatak ve oturma odası. 2 banyo, hidromasajlı küvet, Bvlgari kozmetik, geniş teras.',
+      cap:'4'
+    },
+    {
+      name:'Luxury Lagoon Suite', cat:'Lagoon Suite', size:'75 m²',
+      imgs:['Luxury_Lagoon_Suite_1.webp','Luxury_Lagoon_Suite_2.webp'],
+      feat:['Isıtmalı Havuz Erişimi','PGA Asistan','Nespresso','Bvlgari Kozmetik'],
+      desc:'75 m², ısıtmalı lagoon havuzuna özel erişim. Kişisel Palazzo Guest Assistant (PGA) hizmeti.',
+      cap:'4'
+    },
+    {
+      name:'Golf Villa (3 Yatak Odalı)', cat:'Golf Villa', size:'265 m²',
+      imgs:['Golf_Villa_3Bedroom.webp'],
+      feat:['Özel Havuz','3 Yatak Odası','Jakuzi','Özel Butler'],
+      desc:'265 m², özel havuz, jakuzi, mutfak. Özel butler, VIP transfer, alakart önceliği ve pavilyon.',
+      cap:'7'
+    },
+    {
+      name:'SwimUp Villa (3 Yatak Odalı)', cat:'SwimUp Villa', size:'Villa',
+      imgs:['SwimUp_Villa_3Bedroom.webp'],
+      feat:['3 Yatak Odası','Havuza Erişim','Villa Konforu'],
+      desc:'3 yatak odalı, havuza doğrudan erişimli villa. Aileler için ideal premium konaklama.',
+      cap:'7'
+    },
+    {
+      name:'Maldives Villa (3 Yatak Odalı)', cat:'Maldives Villa', size:'Villa',
+      imgs:['Maldives_Villa_3Bedroom.webp'],
+      feat:['3 Yatak Odası','Tropikal Tasarım','Villa Konforu'],
+      desc:'Maldivler temalı 3 yatak odalı villa. Tropikal atmosferde eşsiz Belek deneyimi.',
+      cap:'7'
+    },
+    {
+      name:'Palazzo Mansion', cat:'Mansion', size:'1.000 m²',
+      imgs:['Palazzo_Mansion_1.webp','Palazzo_Mansion_2.webp'],
+      feat:['Sonsuzluk Havuzu','Hamam & Sauna','Özel Şef','Helikopter Transferi'],
+      desc:'1.000 m², sonsuzluk havuzu, hamam, sauna, fitness, sinema odası. Özel şef, butler ve iskele.',
+      cap:'12'
+    },
+  ]
+},
+kaya_belek: {
+  name: 'Kaya Belek',
+  folder: '05_KAYA_BELEK',
+  rooms: [
+    {
+      name:'Standard Room', cat:'Standard', size:'30 m²',
+      imgs:['Standard_Room_1.webp','Standard_Room_LandView.jpg','Standard_Room_SeaView.webp','Room_Interior.jpg'],
+      feat:['Deniz veya Bahçe Manzarası','Balkon','Minibar','Kasa'],
+      desc:'30 m², deniz veya bahçe manzaralı. Balkon, klima, minibar, kasa ve saç kurutma makinesi.',
+      cap:'3'
+    },
+    {
+      name:'Suite Room', cat:'Suite', size:'50 m²',
+      imgs:['Suite_Room.jpg','Room_Interior.jpg'],
+      feat:['Deniz Manzarası','Oturma Odası','Balkon','VIP Setup'],
+      desc:'50 m², deniz manzaralı. Ayrı yatak ve oturma odası, balkon ve VIP karşılama setup\'ı.',
+      cap:'4'
+    },
+    {
+      name:'Family Room', cat:'Family', size:'50 m²',
+      imgs:['Standard_Room_1.webp','Room_Interior.jpg'],
+      feat:['Bahçe Manzarası','2 Yatak Odası','Bağlantılı Kapı','Balkon'],
+      desc:'50 m², bağlantılı 2 yatak odalı. 1 banyo, balkon. Aileler için pratik ve konforlu seçenek.',
+      cap:'4'
+    },
+  ]
+},
+titanic: {
+  name: 'Titanic Deluxe Golf Belek',
+  folder: '06_TITANIC_DELUXE_GOLF',
+  rooms: [
+    {
+      name:'Standard Room', cat:'Standard', size:'34 m²',
+      imgs:['Standard_Room.jpg'],
+      feat:['Ana Bina','Balkon','Çay/Kahve Seti','Minibar'],
+      desc:'34 m², ana bina konumlu. Balkon, minibar, çay/kahve seti, LED TV, duş/WC.',
+      cap:'3'
+    },
+    {
+      name:'Bali House Garden', cat:'Bali House', size:'42 m²',
+      imgs:['Bali_House_Garden.jpg'],
+      feat:['Özel Bahçe','Bali Teması','Teras'],
+      desc:'Bali temalı, özel bahçe girişli butik oda. Sakin ve mahrem atmosfer.',
+      cap:'2'
+    },
+    {
+      name:'Deluxe Suite', cat:'Deluxe Suite', size:'70 m²',
+      imgs:['Deluxe_Room.jpg','Deluxe_Room_1.webp'],
+      feat:['Küvet','Nespresso','Makyaj Aynası','Özel Asistan'],
+      desc:'70 m², ana bina. Küvet, Nespresso makinesi, makyaj aynası ve özel asistan hizmeti.',
+      cap:'4'
+    },
+    {
+      name:'Ottoman Spa Suite', cat:'Spa Suite', size:'70 m²',
+      imgs:['Ottoman_Spa_Suite.jpg'],
+      feat:['Özel Spa','Ottoman Teması','Jakuzi'],
+      desc:'Osmanlı temalı, özel spa alanı olan lüks suite. Jakuzi ve unutulmaz konaklama deneyimi.',
+      cap:'2'
+    },
+    {
+      name:'Corner Suite', cat:'Corner Suite', size:'82 m²',
+      imgs:['Corner_Suite.jpg','Corner_Suite_1.webp','Corner_Suite_2.webp'],
+      feat:['Köşe Konum','Panoramik Manzara','82 m²','5 Kişi'],
+      desc:'82 m², köşe konumuyla panoramik manzara. Max. 5 yetişkin kapasiteli prestijli suite.',
+      cap:'5'
+    },
+    {
+      name:'Family Suite', cat:'Family Suite', size:'80 m²',
+      imgs:['Family_Suite.jpg'],
+      feat:['2 Yatak Odası','2 Banyo','Balkon','5 Kişi'],
+      desc:'80 m², 2 ayrı yatak odası ve 2 banyo. Aileler için geniş ve konforlu suite.',
+      cap:'6'
+    },
+    {
+      name:'Maldive House', cat:'Maldive House', size:'52 m²',
+      imgs:['Maldive_House_1.webp','Maldive_House_2.webp','Maldive_House_3.webp'],
+      feat:['Havuz Erişimi','Teras','Cabana Servisi','Yalnızca Yetişkin'],
+      desc:'52 m², havuz başı konumlu. Özel havuz erişimi, cabana servisi (yaz), özel asistan.',
+      cap:'3'
+    },
+    {
+      name:'Exclusive Pool Villa', cat:'Pool Villa', size:'360 m²',
+      imgs:['Exclusive_Pool_Villa_1.webp'],
+      feat:['69 m² Özel Havuz','2 Yatak Odası','Butler','VIP Transfer'],
+      desc:'360 m², 69 m² özel havuz, 2 yatak odası, oturma odası, mutfak, özel butler ve VIP transfer.',
+      cap:'5'
+    },
+  ]
+},
+maxx: {
+  name: 'Maxx Royal Belek Golf Resort',
+  folder: '07_MAXX_ROYAL_BELEK',
+  rooms: [
+    {
+      name:'Suite Sea View', cat:'Suite', size:'80 m²',
+      imgs:['Suite_SeaView.jpg','Suite_Sea_View_1.webp','Suite_Sea_View_2.webp','Suite_Sea_View_3.webp'],
+      feat:['Deniz Manzarası','Jakuzi','Diptyque Buklet','Nespresso'],
+      desc:'80 m², deniz manzaralı balkon. Jakuzi, giyinme odası, Diptyque buklet ve Maxibar.',
+      cap:'5'
+    },
+    {
+      name:'Terrace Laguna Family Suite', cat:'Laguna Suite', size:'100 m²',
+      imgs:['Maxx_Laguna_Suite_1.webp','Maxx_Laguna_Suite_2.webp'],
+      feat:['Havuza Direkt Erişim','2 Yatak Odası','2 Banyo','Teras'],
+      desc:'100 m², laguna bölgesinde. Teras üzerinden havuza doğrudan erişim, 2 yatak odası.',
+      cap:'6'
+    },
+    {
+      name:'Royal Suite', cat:'Royal Suite', size:'100 m²',
+      imgs:['Royal_Suite.jpeg','Suite_Sea_View_1.webp'],
+      feat:['Deniz Manzarası','Jakuzili Duş','VIP Servisler','Giyinme Odası'],
+      desc:'100 m², deniz manzaralı. Jakuzili duş, giyinme odası ve özel VIP karşılama servisleri.',
+      cap:'5'
+    },
+    {
+      name:'King Suite', cat:'King Suite', size:'Özel',
+      imgs:['King_Suite.jpeg'],
+      feat:['VIP','En Üst Kategori','Özel Servis'],
+      desc:'Maxx Royal\'ın ikonik King Suite\'i. Sınır tanımayan lüks, özel tasarım ve hizmet.',
+      cap:'4'
+    },
+    {
+      name:'Maxx Laguna Duplex Suite', cat:'Laguna Duplex', size:'135 m²',
+      imgs:['Maxx_Laguna_Suite_1.webp','Maxx_Laguna_Suite_2.webp'],
+      feat:['Havuza Direkt Erişim','2 Yatak Odası','Oturma Odası','Teras'],
+      desc:'135 m², 2 yatak odası ve oturma odası. Laguna havuzuna doğrudan erişimli teras.',
+      cap:'6'
+    },
+    {
+      name:'Albatross Villa (2 Yatak Odalı)', cat:'Albatross Villa', size:'350 m²',
+      imgs:['Albatross_Villa.jpg','Villa_Exterior.jpg','Villa_Pool.jpg'],
+      feat:['Özel Havuz','Sauna & Jakuzi','2 Yatak Odası','Golf Sahası İçinde'],
+      desc:'350 m², golf sahası içinde. Özel açık havuz, sauna, jakuzi, mutfak ve yemek bölümü.',
+      cap:'8'
+    },
+    {
+      name:'Presidential Villa', cat:'Presidential Villa', size:'630 m²',
+      imgs:['Villa_Pool.jpg','Villa_Exterior.jpg'],
+      feat:['Özel Havuz','4 Yatak Odası','Hamam & Sauna','Fitness'],
+      desc:'630 m², 4 yatak odası, özel havuz, hamam, sauna, jakuzi ve fitness alanı. Golf sahası içinde.',
+      cap:'13'
+    },
+    {
+      name:'Owner Villa', cat:'Owner Villa', size:'630 m²',
+      imgs:['Villa_Exterior.jpg','Villa_Pool.jpg'],
+      feat:['Özel Havuz','Jakuzili Teras','Butler Servisi','Özel Şezlong'],
+      desc:'630 m², jakuzili özel teras, 4 yatak odası, özel şezlong alanı ve butler servisi.',
+      cap:'13'
+    },
+  ]
+},
+regnum: {
+  name: 'Regnum Carya Golf & Spa Resort',
+  folder: '08_REGNUM_CARYA',
+  rooms: [
+    {
+      name:'Jade Room', cat:'Jade', size:'62 m²',
+      imgs:['Jade_Room.jpg','Jade_Room_1.webp','Jade_Room_2.jpg','Jade_Room_2.webp','Jade_Room_SeaView.jpg'],
+      feat:['Deniz Manzarası','12 m² Balkon','Acqua di Parma','Nespresso'],
+      desc:'62 m², 12 m² balkon, giyinme odası, Ayna TV, Acqua di Parma buklet, Maxibar ve Nespresso.',
+      cap:'4'
+    },
+    {
+      name:'Jade Junior Suite', cat:'Junior Suite', size:'125 m²',
+      imgs:['Jade_Room_SeaView.jpg','Jade_Room_1.webp'],
+      feat:['Geniş Balkon','Jakuzili Küvet','Oturma Alanı','Giyinme Odası'],
+      desc:'125 m², geniş balkon, oturma alanı, jakuzili küvet ve giyinme odası. Ana bina.',
+      cap:'4'
+    },
+    {
+      name:'Jade Family Room', cat:'Family', size:'125 m²',
+      imgs:['Jade_Room.jpg','Jade_Room_1.webp'],
+      feat:['2 Yatak Odası','2 Banyo','2 Balkon','Giyinme Odası'],
+      desc:'125 m², 2 yatak odası, 2 banyo, 2 balkon. Aileler için geniş ve konforlu seçenek.',
+      cap:'6'
+    },
+    {
+      name:'Pearl Pool Room', cat:'Pearl', size:'62 m²',
+      imgs:['Pearl_Pool_Room.jpg','Resort_Overview.webp'],
+      feat:['Isıtmalı Havuz Erişimi','Teras','Giyinme Odası','Carya Bölgesi'],
+      desc:'62 m², Carya bölgesi. Paylaşımlı ısıtmalı havuza teras erişimi, giyinme odası.',
+      cap:'4'
+    },
+    {
+      name:'Pearl Pool Suite', cat:'Pearl Suite', size:'125 m²',
+      imgs:['Pearl_Pool_Room.jpg','Resort_Overview.webp'],
+      feat:['Isıtmalı Havuz Erişimi','Oturma Odası','2 Banyo','Carya Bölgesi'],
+      desc:'125 m², 1 yatak + 1 oturma odası, 2 banyo. Paylaşımlı ısıtmalı havuza teras erişimi.',
+      cap:'5'
+    },
+    {
+      name:'Amber Villa', cat:'Villa', size:'250 m²',
+      imgs:['Tiara_Villa.jpg','Resort_Overview.webp'],
+      feat:['Özel Havuz','3 Yatak Odası','Sauna & Jakuzi','Mutfak'],
+      desc:'250 m², özel havuz, 3 yatak odası, oturma odası, mutfak, sauna ve jakuzi.',
+      cap:'7'
+    },
+    {
+      name:'Sapphire Villa', cat:'Sapphire Villa', size:'400 m²',
+      imgs:['Tiara_Villa.jpg','Resort_Overview.webp'],
+      feat:['Özel Havuz','3 Yatak Odası','Hamam & Sauna','Yemek Odası'],
+      desc:'400 m², özel havuz, 3 yatak odası, yemek odası, mutfak, hamam ve sauna.',
+      cap:'7'
+    },
+    {
+      name:'Tiara Villa', cat:'Tiara Villa', size:'1.500 m²',
+      imgs:['Tiara_Villa.jpg','Resort_Overview.webp'],
+      feat:['Özel Havuz','5 Yatak Odası','Özel SPA','Helikopter Pisti'],
+      desc:'1.500 m², 440 m² özel havuz, 5 yatak odası, özel SPA (hamam, sauna, buhar), sinema, fitness.',
+      cap:'12'
+    },
+  ]
+},
+sirene: {
+  name: 'Sirene Belek Hotel',
+  folder: '09_SIRENE_BELEK',
+  rooms: [
+    {
+      name:'Standard Junior Suite', cat:'Standard', size:'47 m²',
+      imgs:['Standard_Junior_Suite_Garden.jpg','Junior_Suite_1.webp','Junior_Suite_2.webp'],
+      feat:['Golf / Bahçe Manzarası','Balkon','Küvet/Duş','Minibar'],
+      desc:'47 m², golf veya bahçe manzaralı. Balkon, oturma alanı, minibar, kasa ve küvet/duş.',
+      cap:'3'
+    },
+    {
+      name:'Deluxe Junior Suite', cat:'Deluxe', size:'47 m²',
+      imgs:['Deluxe_Junior_Suite_1.webp','Deluxe_Junior_Suite_2.webp'],
+      feat:['Bahçe Manzarası','2023 Renovasyon','Parke Zemin','Modern Tasarım'],
+      desc:'47 m², 2023\'te tamamen yenilendi. Parke zemin, modern mobilyalar, balkon ve duş.',
+      cap:'3'
+    },
+    {
+      name:'Junior Suite', cat:'Junior Suite', size:'60 m²',
+      imgs:['Junior_Suite_Room.jpg','Junior_Suite_1.webp','Junior_Suite_2.webp'],
+      feat:['Deniz / Bahçe Manzarası','Geniş Balkon','Küvet/Duş','Modern Dekorasyon'],
+      desc:'60 m², geniş balkon, deniz veya bahçe manzarası. Modern dekorasyon ve küvet/duş.',
+      cap:'4'
+    },
+    {
+      name:'Lale Suite', cat:'Lale Suite', size:'80 m²',
+      imgs:['Lale_Suite.png','Lale_Suite_1.webp','Lale_Suite_2.webp'],
+      feat:['Deniz Manzarası','Dubleks (2 Katlı)','2 Yatak Odası','2 Banyo'],
+      desc:'80 m², deniz manzaralı dubleks suite. 2 katlı, 2 yatak odası, 2 banyo ve balkon.',
+      cap:'4'
+    },
+    {
+      name:'Pasha Suite', cat:'Pasha Suite', size:'150 m²',
+      imgs:['Pasha_Suite_1.png','Pasha_Suite_2.png'],
+      feat:['Deniz Manzarası','VIP Setup','Oturma Odası','Bornoz/Terlik'],
+      desc:'150 m², geniş teras ve deniz manzarası. Ayrı oturma ve yatak odası, VIP karşılama.',
+      cap:'6'
+    },
+    {
+      name:'Villa Garden / Sunshine', cat:'Villa', size:'120–140 m²',
+      imgs:['Standard_Junior_Suite_Garden.jpg'],
+      feat:['Özel Bahçe/Teras','2–3 Yatak Odası','Oturma Odası','6 Kişi'],
+      desc:'120–140 m², 2 veya 3 yatak odalı villa. Özel bahçe/teras, oturma odası, Sunshine\'da mutfak.',
+      cap:'6'
+    },
+  ]
+},
+kempinski: {
+  name: 'Kempinski The Dome Belek',
+  folder: '10_KEMPINSKI_THE_DOME',
+  rooms: [
+    {
+      name:'Superior Garden View', cat:'Superior', size:'38 m²',
+      imgs:['Room_Interior.jpg','Superior_Room_SeaView.jpg'],
+      feat:['Bahçe Manzarası','Balkon','Küvet & Duş','Isıtmalı Banyo Aynası'],
+      desc:'38 m², parke zemin, ayrı küvet ve duş, ısıtmalı banyo aynası, interaktif TV.',
+      cap:'3'
+    },
+    {
+      name:'Deluxe Room Sea View', cat:'Deluxe', size:'38 m²',
+      imgs:['Superior_Room_SeaView.jpg','Room_Interior.jpg'],
+      feat:['Direkt Deniz Manzarası','Balkon','Lüks Banyo Bukletleri','Parke Zemin'],
+      desc:'38 m², direkt deniz manzaralı. Parke zemin, lüks banyo bukletleri, balkon.',
+      cap:'3'
+    },
+    {
+      name:'Family Room', cat:'Family', size:'Geniş',
+      imgs:['Family_Room.jpg','Room_Interior.jpg'],
+      feat:['Aile İçin','Golf Sahası Yanı','Geniş Alan'],
+      desc:'Golf sahası yanında konumlu, aileler için geniş ve konforlu oda.',
+      cap:'4'
+    },
+    {
+      name:'Lagoon Suite', cat:'Lagoon Suite', size:'90 m²',
+      imgs:['Lagoon_Suite.jpg','Room_Interior.jpg'],
+      feat:['Havuz Erişimi','Teras','Oturma Odası','2 Banyo'],
+      desc:'90 m², golf sahası yanında. Ortak havuz erişimi, teras, 1 yatak + 1 oturma odası, 2 banyo.',
+      cap:'4'
+    },
+    {
+      name:'Seljuk Suite', cat:'Seljuk Suite', size:'180 m²',
+      imgs:['Seljuk_Suite.jpg','Superior_Room_SeaView.jpg'],
+      feat:['Deniz Manzarası','Butler Hizmeti','VIP Karşılama','Oturma Odası'],
+      desc:'180 m², deniz manzaralı. Geniş oturma odası, butler hizmeti ve VIP karşılama.',
+      cap:'4'
+    },
+    {
+      name:'Sultan Villa (3 Yatak Odalı)', cat:'Sultan Villa', size:'467 m²',
+      imgs:['Sultan_Villa_1.webp','Sultan_Villa_2.webp'],
+      feat:['Özel Havuz','Jakuzi & Şömine','3 Yatak Odası','Butler & VIP Transfer'],
+      desc:'467 m², özel havuz, jakuzi, şömine, mutfak, şarap soğutucu, butler ve VIP transfer.',
+      cap:'6'
+    },
+    {
+      name:'Presidential Villa', cat:'Presidential Villa', size:'750 m²',
+      imgs:['Sultan_Villa_1.webp','Sultan_Villa_2.webp'],
+      feat:['Isıtmalı Özel Havuz','4 Yatak Odası','Jakuzi & Sauna','Butler'],
+      desc:'750 m², ısıtmalı özel havuz, 4 yatak odası, 4 banyo, jakuzi, sauna, mutfak ve geniş teras.',
+      cap:'8'
+    },
+  ]
+},
+/* HOTELS_PLACEHOLDER */
+};
+
+/* ── Image fallback: tries webp → jpg → jpeg → png ── */
+function imgFail(el){
+  const src=el.src, ext=src.split('.').pop().toLowerCase();
+  const base=src.slice(0,src.lastIndexOf('.'));
+  const order=['webp','jpg','jpeg','png'];
+  const next=order[order.indexOf(ext)+1];
+  if(next){ el.src=base+'.'+next; } else { el.style.background='rgba(201,169,110,.08)'; el.style.minHeight='175px'; }
+}
+
+/* ── ENGINE ── */
+const hotelKey = localStorage.getItem('priveHotel') || 'regnum';
+const hotel = HOTELS[hotelKey] || HOTELS[Object.keys(HOTELS)[0]];
+if(!hotel){ document.getElementById('rg').innerHTML='<p style="color:#C9A96E;padding:40px">Otel bulunamadı.</p>'; }
+
+document.getElementById('hBadge').textContent = hotel?.name || '';
+
+/* Person icons */
+function persons(n){
+  const svg='<svg class="pi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0116 0v1"/></svg>';
+  return Array(Math.min(+n||0,8)).fill(svg).join('');
+}
+
+/* Render cards */
+(hotel?.rooms||[]).forEach((room,ri)=>{
+  const imgs = Array.isArray(room.imgs) ? room.imgs : [room.imgs];
+  const folder = hotel.folder;
+
+  const slides = imgs.map((img,si)=>`
+    <div class="img-slide" data-ri="${ri}" data-si="${si}">
+      <img src="${folder}/${img}" alt="${room.name}" loading="lazy" onerror="imgFail(this)">
+    </div>`).join('');
+
+  const dots = imgs.length>1 ? `<div class="sl-dots">${imgs.map((_,si)=>`<div class="sl-dot${si===0?' active':''}" data-si="${si}"></div>`).join('')}</div>` : '';
+  const arrows = imgs.length>1 ? `<button class="sl-arrow sl-prev">‹</button><button class="sl-arrow sl-next">›</button>` : '';
+
+  const card = document.createElement('div');
+  card.className='rc'; card.dataset.ri=ri;
+  card.innerHTML=`
+    <div class="rc-top-line"></div>
+    <div class="img-slider">
+      <div class="img-track">${slides}</div>
+      ${arrows}${dots}
+      <div class="cat-badge">${room.cat}</div>
+    </div>
+    <div class="cb">
+      <div class="rn">${room.name}</div>
+      ${room.size?`<div class="rsz">${room.size}</div>`:''}
+      <div class="rr"></div>
+      <div class="rf">${(room.feat||[]).map(f=>`<div class="rfi"><div class="ball"></div>${f}</div>`).join('')}</div>
+      <div class="rd">${room.desc||''}</div>
+      ${room.cap?`<div class="rcap"><span class="caplbl">Kapasite</span><div class="persons">${persons(room.cap)}</div></div>`:''}
+      <button class="bsel" data-ri="${ri}">S E Ç</button>
+    </div>`;
+
+  document.getElementById('rg').appendChild(card);
+
+  /* Slider logic */
+  if(imgs.length>1){
+    const track = card.querySelector('.img-track');
+    const dotsEl = card.querySelectorAll('.sl-dot');
+    let cur=0;
+    const go=n=>{ cur=(n+imgs.length)%imgs.length; track.style.transform=`translateX(-${cur*100}%)`; dotsEl.forEach((d,i)=>d.classList.toggle('active',i===cur)); };
+    card.querySelector('.sl-prev').onclick=e=>{ e.stopPropagation(); go(cur-1); };
+    card.querySelector('.sl-next').onclick=e=>{ e.stopPropagation(); go(cur+1); };
+    dotsEl.forEach(d=>d.onclick=e=>{ e.stopPropagation(); go(+d.dataset.si); });
+
+    /* Swipe */
+    let tx=0;
+    track.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+    track.addEventListener('touchend',e=>{ const d=e.changedTouches[0].clientX-tx; if(Math.abs(d)>40) go(d<0?cur+1:cur-1); },{passive:true});
+  }
+});
+
+/* Select */
+document.getElementById('rg').addEventListener('click',e=>{
+  const btn=e.target.closest('.bsel'); if(!btn) return;
+  document.querySelectorAll('.bsel').forEach(b=>{b.classList.remove('sel');b.textContent='S E Ç'});
+  document.querySelectorAll('.rc').forEach(c=>c.classList.remove('sel'));
+  btn.classList.add('sel'); btn.textContent='✓ Seçildi';
+  btn.closest('.rc').classList.add('sel');
+  localStorage.setItem('priveRoom', hotel.rooms[+btn.dataset.ri].name);
+  setTimeout(()=>window.location.href='page6.html',700);
+});
+
+/* Lightbox on image click */
+let lbImgs=[],lbIdx=0;
+document.getElementById('rg').addEventListener('click',e=>{
+  const slide=e.target.closest('.img-slide');
+  if(!slide||e.target.closest('.bsel')||e.target.closest('.sl-arrow')) return;
+  const ri=+slide.dataset.ri, si=+slide.dataset.si;
+  const imgs=Array.isArray(hotel.rooms[ri].imgs)?hotel.rooms[ri].imgs:[hotel.rooms[ri].imgs];
+  lbImgs=imgs.map(img=>`${hotel.folder}/${img}`);
+  lbIdx=si; showLB();
+  document.getElementById('lbox').classList.add('open');
+});
+function showLB(){ document.getElementById('lbImg').src=lbImgs[lbIdx]; document.getElementById('lbCtr').textContent=`${lbIdx+1} / ${lbImgs.length}`; }
+document.getElementById('lbClose').onclick=()=>document.getElementById('lbox').classList.remove('open');
+document.getElementById('lbPrev').onclick=()=>{ lbIdx=(lbIdx-1+lbImgs.length)%lbImgs.length; showLB(); };
+document.getElementById('lbNext').onclick=()=>{ lbIdx=(lbIdx+1)%lbImgs.length; showLB(); };
+document.getElementById('lbox').onclick=e=>{ if(e.target===document.getElementById('lbox')) document.getElementById('lbox').classList.remove('open'); };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.getElementById('lbox').classList.remove('open'); if(e.key==='ArrowLeft') document.getElementById('lbPrev').click(); if(e.key==='ArrowRight') document.getElementById('lbNext').click(); });
+
+/* Lang */
+document.querySelectorAll('.lb2').forEach(b=>b.onclick=()=>{ document.querySelectorAll('.lb2').forEach(x=>x.classList.remove('active')); b.classList.add('active'); localStorage.setItem('privelang',b.textContent); });
+</script>
+</body>
+</html>
