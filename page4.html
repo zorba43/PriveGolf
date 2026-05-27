@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Privé Belek — Otel Seçimi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#060f09}
+
+.bg-img{position:fixed;inset:0;z-index:0}
+.bg-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.55) saturate(.8)}
+.ov1{position:fixed;inset:0;z-index:1;background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,.08) 0%,rgba(0,0,0,.55) 100%)}
+.ov2{position:fixed;inset:0;z-index:2;background:linear-gradient(to bottom,rgba(0,0,0,.65) 0%,rgba(0,0,0,.15) 35%,rgba(0,0,0,.15) 60%,rgba(0,0,0,.72) 100%)}
+
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 44px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;opacity:0;animation:fadeIn 1s .4s ease forwards}
+.back-btn{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:400;letter-spacing:.25em;color:rgba(232,213,168,.75);text-decoration:none;text-transform:uppercase;display:flex;align-items:center;gap:8px;transition:color .3s;justify-self:start;white-space:nowrap}
+.back-btn::before{content:'←';font-size:14px;color:#C9A96E;transition:transform .3s}
+.back-btn:hover{color:#F5F1EB}
+.back-btn:hover::before{transform:translateX(-4px)}
+.step-w{display:flex;flex-direction:column;align-items:center;gap:6px;justify-self:center}
+.step-circle{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(201,169,110,.5);background:rgba(6,15,9,.55);backdrop-filter:blur(10px)}
+.step-num{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:#E8D5A8}
+.step-label{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:400;letter-spacing:.4em;text-transform:uppercase;color:#C9A96E;white-space:nowrap;text-align:center}
+.lang-switcher{display:flex;align-items:center;gap:2px;justify-self:end}
+.lang-btn{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:400;letter-spacing:.12em;color:rgba(245,241,235,.4);background:none;border:none;cursor:pointer;padding:4px 6px;transition:color .3s;text-transform:uppercase;position:relative}
+.lang-btn:hover{color:rgba(232,213,168,.8)}
+.lang-btn.active{color:#E8D5A8;font-weight:500}
+.lang-btn.active::after{content:'';position:absolute;bottom:1px;left:7px;right:7px;height:.5px;background:#C9A96E}
+
+.header-w{position:fixed;top:94px;left:0;right:0;z-index:100;text-align:center;opacity:0;animation:fadeIn 1s .9s ease forwards}
+.header-title{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,3.8vw,44px);font-weight:300;letter-spacing:.12em;color:#F5F1EB;text-shadow:0 4px 28px rgba(0,0,0,.8);line-height:1.15}
+.header-title em{color:#C9A96E;font-style:italic}
+.header-sub{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:300;letter-spacing:.45em;text-transform:uppercase;color:rgba(232,213,168,.75);margin-top:9px;text-shadow:0 2px 14px rgba(0,0,0,.8)}
+
+.carousel-w{position:fixed;top:185px;bottom:20px;left:0;right:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:visible;opacity:0;animation:fadeIn 1.2s 1.2s ease forwards}
+.carousel{position:relative;width:100%;max-width:1400px;flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;perspective:1400px;overflow:visible}
+
+.card{position:absolute;width:420px;background:linear-gradient(160deg,rgba(10,24,15,.88) 0%,rgba(4,10,7,.95) 100%);border:1px solid rgba(201,169,110,.18);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;flex-direction:column;align-items:center;padding:0 0 18px;transition:all .7s cubic-bezier(.16,1,.3,1);cursor:pointer;box-shadow:0 24px 64px rgba(0,0,0,.5);overflow:hidden}
+.card.active{transform:translateX(0) scale(1);z-index:10;border-color:rgba(201,169,110,.5);box-shadow:0 32px 88px rgba(0,0,0,.6),0 0 0 1px rgba(201,169,110,.14),0 0 60px rgba(201,169,110,.07)}
+.card.prev{transform:translateX(calc(-100% - 50px)) scale(.78);opacity:.48;z-index:5;filter:brightness(.6) blur(1px)}
+.card.next{transform:translateX(calc(100% + 50px)) scale(.78);opacity:.48;z-index:5;filter:brightness(.6) blur(1px)}
+.card.hidden{transform:translateX(0) scale(.6);opacity:0;z-index:0;pointer-events:none}
+
+.card-img-wrap{width:100%;height:200px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(201,169,110,.1)}
+.card-img-wrap::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(to bottom,transparent,rgba(4,10,7,.92))}
+.card-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.card.active .card-img-wrap img{transform:scale(1.04)}
+.card-accent{width:100%;height:2px;background:linear-gradient(90deg,transparent,#C9A96E 30%,#C9A96E 70%,transparent);opacity:0;transition:opacity .6s}
+.card.active .card-accent{opacity:1}
+
+.card-body{width:100%;padding:14px 22px 0;display:flex;flex-direction:column;align-items:center;gap:0}
+.card-stars{display:flex;gap:3px;margin-bottom:7px;color:#D4AF37}
+.star{color:#D4AF37;font-size:12px;line-height:1;text-shadow:0 0 8px rgba(212,175,55,.3)}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,2.5vw,26px);font-weight:400;letter-spacing:.08em;color:#F5F1EB;text-align:center;line-height:1.1;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+.card-sub{font-family:'Montserrat',sans-serif;font-size:7px;font-weight:400;letter-spacing:.4em;text-transform:uppercase;color:rgba(201,169,110,.65);margin-top:4px}
+.card-rule{width:32px;height:.5px;background:linear-gradient(90deg,transparent,#C9A96E,transparent);margin:10px auto}
+
+.golf-badge{display:inline-flex;align-items:center;gap:6px;font-family:'Montserrat',sans-serif;font-size:7.5px;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:#C9A96E;border:.5px solid rgba(201,169,110,.28);padding:4px 12px;background:rgba(201,169,110,.06);margin-bottom:12px}
+.golf-ball-icon{width:12px;height:12px;flex-shrink:0}
+
+.feat-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-bottom:12px;padding:0 2px}
+.feat-item{display:flex;align-items:center;gap:7px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:300;color:rgba(245,241,235,.78);line-height:1.3}
+.feat-ball{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 33% 33%,#fff 0%,#e0e0e0 45%,#c8c8c8 100%);box-shadow:inset -1px -1px 2px rgba(0,0,0,.2);flex-shrink:0;position:relative}
+.feat-ball::before{content:'';position:absolute;top:25%;left:15%;width:30%;height:20%;background:rgba(255,255,255,.4);border-radius:50%;transform:rotate(-30deg)}
+
+.card-btns{display:flex;gap:8px;width:100%;padding:0 2px}
+.btn-sel{flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:400;letter-spacing:.45em;text-transform:uppercase;color:#E8D5A8;background:rgba(6,15,9,.5);padding:13px 0;border:.5px solid rgba(201,169,110,.35);cursor:pointer;position:relative;overflow:hidden;transition:all .5s cubic-bezier(.16,1,.3,1);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn-sel::before{content:'';position:absolute;inset:0;background:#C9A96E;transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.16,1,.3,1);z-index:-1}
+.btn-sel:hover{color:#060f09;border-color:#C9A96E}
+.btn-sel:hover::before{transform:scaleX(1)}
+.btn-sel.selected{background:#C9A96E;color:#060f09;border-color:#C9A96E}
+.btn-more{flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:400;letter-spacing:.35em;text-transform:uppercase;color:rgba(201,169,110,.8);background:transparent;padding:13px 0;border:.5px solid rgba(201,169,110,.2);cursor:pointer;transition:all .4s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn-more:hover{color:#E8D5A8;border-color:rgba(201,169,110,.5);background:rgba(201,169,110,.05)}
+
+.nav-arrow{position:fixed;top:50%;transform:translateY(-50%);z-index:50;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(6,15,9,.45);border:1px solid rgba(201,169,110,.2);color:rgba(201,169,110,.7);font-size:22px;cursor:pointer;transition:all .4s ease;backdrop-filter:blur(8px);-webkit-tap-highlight-color:transparent}
+.nav-arrow:hover{background:rgba(201,169,110,.12);border-color:rgba(201,169,110,.5);color:#E8D5A8}
+.nav-arrow.prev{left:24px}
+.nav-arrow.next{right:24px}
+
+.modal-ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.88);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s ease;padding:20px}
+.modal-ov.open{opacity:1;pointer-events:all}
+.modal{background:linear-gradient(160deg,rgba(10,24,15,.98) 0%,rgba(4,10,7,1) 100%);border:1px solid rgba(201,169,110,.2);width:100%;max-width:820px;max-height:92vh;overflow-y:auto;position:relative;animation:modalIn .4s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes modalIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-close{position:absolute;top:14px;right:14px;z-index:10;width:34px;height:34px;border-radius:50%;background:rgba(201,169,110,.1);border:.5px solid rgba(201,169,110,.25);color:#C9A96E;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.modal-close:hover{background:rgba(201,169,110,.2);color:#E8D5A8}
+.modal-hero{width:100%;height:240px;overflow:hidden;position:relative}
+.modal-hero img{width:100%;height:100%;object-fit:cover}
+.modal-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,transparent,rgba(4,10,7,1))}
+.modal-body{padding:24px 32px 32px}
+.modal-label{font-family:'Montserrat',sans-serif;font-size:7px;font-weight:400;letter-spacing:.5em;text-transform:uppercase;color:#C9A96E;margin-bottom:6px}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3vw,34px);font-weight:300;letter-spacing:.08em;color:#F5F1EB;margin-bottom:4px;line-height:1.1}
+.modal-stars{display:flex;gap:3px;margin-bottom:12px;color:#D4AF37}
+.modal-rule{width:40px;height:.5px;background:linear-gradient(90deg,transparent,#C9A96E,transparent);margin:0 0 16px}
+.modal-desc{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:300;line-height:1.85;color:rgba(245,241,235,.7);margin-bottom:22px}
+.modal-desc em{color:#E8D5A8;font-style:normal;font-weight:400}
+.modal-sec{font-family:'Montserrat',sans-serif;font-size:7.5px;font-weight:500;letter-spacing:.4em;text-transform:uppercase;color:#C9A96E;margin-bottom:10px}
+.modal-specs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+.spec-item{background:rgba(201,169,110,.04);border:.5px solid rgba(201,169,110,.12);padding:10px 12px}
+.spec-label{font-family:'Montserrat',sans-serif;font-size:7px;font-weight:400;letter-spacing:.3em;text-transform:uppercase;color:rgba(201,169,110,.6);margin-bottom:3px}
+.spec-val{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:300;color:rgba(245,241,235,.8)}
+.modal-golf{background:rgba(201,169,110,.04);border:.5px solid rgba(201,169,110,.15);padding:14px;margin-bottom:20px}
+.modal-golf-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;color:#E8D5A8;margin-bottom:5px}
+.modal-golf-desc{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:300;color:rgba(245,241,235,.65);line-height:1.7}
+
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:20px}
+.gallery-item{position:relative;height:100px;overflow:hidden;cursor:pointer}
+.gallery-item:first-child{grid-column:span 2;height:140px}
+.gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease,filter .4s ease;filter:brightness(.85)}
+.gallery-item:hover img{transform:scale(1.06);filter:brightness(1.05)}
+.gallery-item::after{content:'🔍';position:absolute;bottom:6px;right:8px;font-size:14px;opacity:0;transition:opacity .3s}
+.gallery-item:hover::after{opacity:0.7}
+
+.lightbox{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.96);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.lightbox.open{opacity:1;pointer-events:all}
+.lightbox img{max-width:90vw;max-height:88vh;object-fit:contain;box-shadow:0 0 80px rgba(0,0,0,.8)}
+.lb-close{position:absolute;top:20px;right:24px;width:40px;height:40px;border-radius:50%;background:rgba(201,169,110,.15);border:.5px solid rgba(201,169,110,.3);color:#C9A96E;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.lb-close:hover{background:rgba(201,169,110,.3);color:#fff}
+.lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;background:rgba(201,169,110,.15);border:.5px solid rgba(201,169,110,.3);color:#C9A96E;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.lb-prev:hover,.lb-next:hover{background:rgba(201,169,110,.3);color:#fff}
+.lb-prev{left:24px}
+.lb-next{right:24px}
+.lb-counter{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.3em;color:rgba(201,169,110,.6)}
+
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap}
+.m-btn-sel{flex:1;min-width:160px;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:400;letter-spacing:.4em;text-transform:uppercase;color:#060f09;background:#C9A96E;padding:14px 20px;border:none;cursor:pointer;transition:background .3s}
+.m-btn-sel:hover{background:#E8D5A8}
+.m-btn-exp{flex:1;min-width:160px;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:400;letter-spacing:.3em;text-transform:uppercase;color:rgba(201,169,110,.8);background:transparent;padding:14px 20px;border:.5px solid rgba(201,169,110,.3);cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .3s}
+.m-btn-exp:hover{color:#E8D5A8;border-color:rgba(201,169,110,.6)}
+
+.modal::-webkit-scrollbar{width:3px}
+.modal::-webkit-scrollbar-thumb{background:rgba(201,169,110,.3)}
+@keyframes fadeIn{from{opacity:0}
+
+/* ── LANDSCAPE MODE ── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .header-w{top:58px}
+  .header-title{font-size:clamp(16px,3.5vw,22px)}
+  .header-sub{font-size:6.5px;margin-top:4px}
+  .carousel-w{top:105px;bottom:5px}
+  .card{width:min(65vw,340px);padding:0 0 8px}
+  .card-img-wrap{height:clamp(70px,16vw,110px)}
+  .card-body{padding:8px 14px 0}
+  .card-title{font-size:clamp(14px,3.5vw,18px)}
+  .card-sub{font-size:6px}
+  .card-rule{margin:6px auto}
+  .golf-badge{font-size:6.5px;padding:2px 8px;margin-bottom:6px}
+  .feat-grid{gap:3px 8px;margin-bottom:6px}
+  .feat-item{font-size:8px}
+  .card-btns{gap:5px}
+  .btn-sel,.btn-more{padding:9px 0;font-size:6.5px;min-height:36px}
+  .select-w{padding:10px 0 6px}
+  .step-circle{width:32px;height:32px}
+  .step-num{font-size:16px}
+  .step-label{font-size:5.5px}
+  .nav-arrow{width:36px;height:36px;font-size:16px}
+}
+
+@media (max-height: 380px) and (orientation: landscape) {
+  .header-w{top:52px}
+  .carousel-w{top:95px}
+  .card-img-wrap{height:clamp(60px,14vw,90px)}
+  .golf-badge{display:none}
+  .feat-grid{display:none}
+  .card-sub{margin-bottom:6px}
+  .card-rule{margin:4px auto}
+  .card-btns{margin-top:6px}
+  .btn-sel,.btn-more{padding:8px 0;font-size:6px;min-height:34px}
+}
+to{opacity:1}}
+
+@media (max-width: 768px) {
+  html,body{overflow:hidden;height:100dvh}
+  .top-bar{padding:12px 14px;grid-template-columns:1fr auto 1fr;gap:8px}
+  .back-btn{font-size:7px;letter-spacing:.15em;gap:4px;min-height:44px;min-width:44px;display:flex;align-items:center;white-space:nowrap}
+  .back-btn::before{font-size:10px}
+  .step-w{gap:4px}
+  .step-circle{width:36px;height:36px}
+  .step-num{font-size:18px}
+  .step-label{font-size:7px;letter-spacing:.25em;margin-top:2px}
+  .lang-switcher{gap:0px;justify-self:end}
+  .lang-btn{font-size:7px;padding:6px 5px;letter-spacing:.08em;min-height:44px;min-width:36px}
+  .header-w{top:72px}
+  .header-title{font-size:clamp(18px,5vw,28px);letter-spacing:.08em}
+  .header-sub{font-size:7px;letter-spacing:.35em;margin-top:6px}
+  .carousel-w{top:130px;bottom:10px}
+  .card{width:min(82vw,340px);padding:0 0 12px}
+  .card-img-wrap{height:clamp(120px,22vw,160px)}
+  .card-body{padding:10px 16px 0}
+  .card-stars{margin-bottom:5px}
+  .star{font-size:10px}
+  .card-title{font-size:clamp(16px,4.5vw,22px);letter-spacing:.06em}
+  .card-sub{font-size:6.5px;letter-spacing:.35em}
+  .card-rule{margin:8px auto}
+  .golf-badge{font-size:7px;padding:3px 10px;margin-bottom:10px}
+  .golf-ball-icon{width:10px;height:10px}
+  .feat-grid{gap:5px 12px;margin-bottom:10px}
+  .feat-item{font-size:9px;gap:5px}
+  .feat-ball{width:8px;height:8px}
+  .card-btns{gap:6px}
+  .btn-sel,.btn-more{font-size:7px;padding:11px 0;letter-spacing:.35em;min-height:44px}
+  .card.prev{transform:translateX(calc(-88vw)) scale(.72);opacity:.35;filter:brightness(.55) blur(2px)}
+  .card.next{transform:translateX(calc(88vw)) scale(.72);opacity:.35;filter:brightness(.55) blur(2px)}
+  .nav-arrow{width:44px;height:44px;font-size:18px;min-height:44px;min-width:44px}
+  .nav-arrow.prev{left:4px}
+  .nav-arrow.next{right:4px}
+  .modal{max-width:95vw}
+  .modal-hero{height:clamp(150px,30vw,180px)}
+  .modal-body{padding:16px 20px 24px}
+  .modal-title{font-size:clamp(18px,4vw,26px)}
+  .modal-desc{font-size:11px;line-height:1.7}
+  .modal-specs{grid-template-columns:repeat(2,1fr);gap:6px}
+  .spec-item{padding:8px 10px}
+  .spec-val{font-size:10px}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);gap:4px}
+  .gallery-item{height:clamp(70px,18vw,90px)}
+  .gallery-item:first-child{grid-column:span 2;height:clamp(100px,25vw,130px)}
+  .modal-actions{flex-direction:column}
+  .m-btn-sel,.m-btn-exp{width:100%;min-width:auto;min-height:48px}
+  .lb-prev,.lb-next{width:40px;height:40px;font-size:18px;min-height:40px;min-width:40px}
+  .lb-prev{left:8px}
+  .lb-next{right:8px}
+  .lb-close{width:44px;height:44px;min-height:44px;min-width:44px}
+}
+
+@media (max-width: 480px) {
+  .top-bar{padding:10px 12px}
+  .card{width:min(78vw,290px)}
+  .card-img-wrap{height:clamp(100px,20vw,130px)}
+  .card-title{font-size:clamp(14px,4.2vw,18px)}
+  .feat-grid{grid-template-columns:1fr;gap:4px}
+  .feat-item{font-size:8px}
+  .card.prev{transform:translateX(calc(-82vw)) scale(.68);opacity:.3}
+  .card.next{transform:translateX(calc(82vw)) scale(.68);opacity:.3}
+  .nav-arrow{width:40px;height:40px;font-size:16px}
+  .header-title{font-size:clamp(16px,4.5vw,22px)}
+  .modal-hero{height:clamp(130px,28vw,150px)}
+  .gallery-item:first-child{height:clamp(90px,22vw,110px)}
+  .gallery-item{height:clamp(60px,16vw,80px)}
+  .modal-actions{gap:8px}
+  .m-btn-sel,.m-btn-exp{padding:12px 16px}
+}
+
+@media (max-width: 360px) {
+  .card{width:min(76vw,260px)}
+  .card-img-wrap{height:clamp(90px,18vw,110px)}
+  .card.prev{transform:translateX(calc(-80vw)) scale(.65);opacity:.25}
+  .card.next{transform:translateX(calc(80vw)) scale(.65);opacity:.25}
+  .nav-arrow{width:36px;height:36px;font-size:14px}
+  .header-title{font-size:clamp(14px,4vw,18px)}
+  .btn-sel,.btn-more{font-size:6.5px;letter-spacing:.3em}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-img"><img src="4.webp" alt="Belek"></div>
+<div class="ov1"></div><div class="ov2"></div>
+
+<div class="top-bar">
+  <a class="back-btn" href="page3.html">Geri</a>
+  <div class="step-w">
+    <div class="step-circle"><span class="step-num">3</span></div>
+    <div class="step-label">Otel Seçimi</div>
+  </div>
+  <div class="lang-switcher">
+    <button class="lang-btn active" data-lang="tr">TR</button>
+    <button class="lang-btn" data-lang="de">DE</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="ru">RU</button>
+  </div>
+</div>
+
+<div class="header-w">
+  <div class="header-title">Konaklamanız, <em>Sizin Seçkinliğiniz</em></div>
+  <div class="header-sub">Otelinizi Seçin</div>
+</div>
+
+<svg style="display:none">
+  <symbol id="gball" viewBox="0 0 12 12">
+    <circle cx="6" cy="6" r="6" fill="url(#bg)"/>
+    <defs>
+      <radialGradient id="bg" cx="35%" cy="35%">
+        <stop offset="0%" stop-color="#fff"/>
+        <stop offset="45%" stop-color="#e0e0e0"/>
+        <stop offset="100%" stop-color="#c0c0c0"/>
+      </radialGradient>
+    </defs>
+    <circle cx="4.5" cy="3.5" r=".7" fill="rgba(0,0,0,.12)"/>
+    <circle cx="7.2" cy="3" r=".6" fill="rgba(0,0,0,.1)"/>
+    <circle cx="8.5" cy="5.5" r=".7" fill="rgba(0,0,0,.1)"/>
+    <circle cx="7.8" cy="8" r=".6" fill="rgba(0,0,0,.12)"/>
+    <circle cx="5" cy="8.5" r=".7" fill="rgba(0,0,0,.1)"/>
+    <circle cx="3" cy="7" r=".6" fill="rgba(0,0,0,.12)"/>
+    <circle cx="3.5" cy="5" r=".6" fill="rgba(0,0,0,.1)"/>
+  </symbol>
+</svg>
+
+<div class="carousel-w">
+  <div class="carousel" id="carousel">
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 1: Regnum Carya (MEVCUT) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card active" data-index="0" data-hotel="regnum">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-9998/regnum-carya.jpg" alt="Regnum Carya">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Regnum Carya</div>
+        <div class="card-sub">Golf & Spa Resort · Ultra All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Carya Golf — Sahaya Sıfır
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>Özel Kumlu Plaj</div>
+          <div class="feat-item"><div class="feat-ball"></div>8 Havuz</div>
+          <div class="feat-item"><div class="feat-ball"></div>10 Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>Greendoor Spa</div>
+          <div class="feat-item"><div class="feat-ball"></div>530 Oda & Villa</div>
+          <div class="feat-item"><div class="feat-ball"></div>25 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="regnum">S E Ç</button>
+          <button class="btn-more" data-hotel="regnum">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 2: Cornelia Diamond (MEVCUT) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card next" data-index="1" data-hotel="cornelia">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-8453/cornelia-diamond-golf-resort--spa.jpg" alt="Cornelia Diamond">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Cornelia Diamond</div>
+        <div class="card-sub">Golf Resort & Spa · Diamond All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Nick Faldo 27 Delik
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>250m Özel Plaj</div>
+          <div class="feat-item"><div class="feat-ball"></div>8 Havuz + Aqua</div>
+          <div class="feat-item"><div class="feat-ball"></div>8 Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>ESPA Spa 5.000m²</div>
+          <div class="feat-item"><div class="feat-ball"></div>571 Oda</div>
+          <div class="feat-item"><div class="feat-ball"></div>Delfinyum</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="cornelia">S E Ç</button>
+          <button class="btn-more" data-hotel="cornelia">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 3: Gloria Serenity (MEVCUT) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="2" data-hotel="gloria">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-9878/gloria-serenity-resort-hotel.jpg" alt="Gloria Serenity">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Gloria Serenity</div>
+        <div class="card-sub">Resort & Spa · Ultra All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Gloria 45 Delik — Bitişik
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>Özel Plaj & İskele</div>
+          <div class="feat-item"><div class="feat-ball"></div>6 Havuz</div>
+          <div class="feat-item"><div class="feat-ball"></div>6 Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>Serenity Spa</div>
+          <div class="feat-item"><div class="feat-ball"></div>369 Oda & Villa</div>
+          <div class="feat-item"><div class="feat-ball"></div>Çam Ormanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="gloria">S E Ç</button>
+          <button class="btn-more" data-hotel="gloria">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 4: Kaya Palazzo (MEVCUT) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="3" data-hotel="kaya">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-9897/kaya-palazzo-golf-resort.jpg" alt="Kaya Palazzo">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Kaya Palazzo</div>
+        <div class="card-sub">Golf Resort · Ultra All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Eagles Golf — Sahaya Sıfır
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>Özel Plaj</div>
+          <div class="feat-item"><div class="feat-ball"></div>10 Havuz</div>
+          <div class="feat-item"><div class="feat-ball"></div>12 Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>Zenon Spa 3.500m²</div>
+          <div class="feat-item"><div class="feat-ball"></div>639 Oda & Villa</div>
+          <div class="feat-item"><div class="feat-ball"></div>Çam Ormanı 650K m²</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="kaya">S E Ç</button>
+          <button class="btn-more" data-hotel="kaya">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 5: Sueno Hotels Deluxe Belek (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="4" data-hotel="sueno-deluxe">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10040/sueno-hotels-deluxe-belek.jpg" alt="Sueno Hotels Deluxe Belek">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Sueno Hotels Deluxe</div>
+        <div class="card-sub">Belek · Deluxe All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Sueno Golf Club — 2 Saha
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>Özel Plaj & İskele</div>
+          <div class="feat-item"><div class="feat-ball"></div>7 Havuz + Aquapark</div>
+          <div class="feat-item"><div class="feat-ball"></div>7 Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>Spa & Wellness</div>
+          <div class="feat-item"><div class="feat-ball"></div>600+ Oda</div>
+          <div class="feat-item"><div class="feat-ball"></div>30 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="sueno-deluxe">S E Ç</button>
+          <button class="btn-more" data-hotel="sueno-deluxe">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 6: Sueno Hotels Golf Belek (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="5" data-hotel="sueno-golf">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10042/sueno-hotels-golf-belek.jpg" alt="Sueno Hotels Golf Belek">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Sueno Hotels Golf</div>
+        <div class="card-sub">Belek · Deluxe All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Pines & Dunes — Sahaya Sıfır
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>2 Championship Saha</div>
+          <div class="feat-item"><div class="feat-ball"></div>Deluxe Erişimi</div>
+          <div class="feat-item"><div class="feat-ball"></div>3 Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>Golf Academy</div>
+          <div class="feat-item"><div class="feat-ball"></div>174 Oda</div>
+          <div class="feat-item"><div class="feat-ball"></div>30 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="sueno-golf">S E Ç</button>
+          <button class="btn-more" data-hotel="sueno-golf">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 7: Titanic Deluxe Golf Belek (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="6" data-hotel="titanic">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10044/titanic-deluxe-golf-belek.jpg" alt="Titanic Deluxe Golf Belek">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Titanic Deluxe Golf</div>
+        <div class="card-sub">Belek · Deluxe All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Titanic Golf Club — 36 Delik
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>170.000 m² Alan</div>
+          <div class="feat-item"><div class="feat-ball"></div>10 Havuz + Aquapark</div>
+          <div class="feat-item"><div class="feat-ball"></div>20 Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>BeFine Spa</div>
+          <div class="feat-item"><div class="feat-ball"></div>596 Oda & Villa</div>
+          <div class="feat-item"><div class="feat-ball"></div>25 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="titanic">S E Ç</button>
+          <button class="btn-more" data-hotel="titanic">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 8: Maxx Royal Belek Golf Resort (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="7" data-hotel="maxxroyal">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10046/maxx-royal-belek-golf-resort.jpg" alt="Maxx Royal Belek Golf Resort">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Maxx Royal Belek</div>
+        <div class="card-sub">Golf Resort · Maxx Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Montgomerie Maxx Royal — 18 Delik
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>Özel Plaj & İskele</div>
+          <div class="feat-item"><div class="feat-ball"></div>7 Havuz + Aquapark</div>
+          <div class="feat-item"><div class="feat-ball"></div>10+ Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>Maxx Wellbeing Spa</div>
+          <div class="feat-item"><div class="feat-ball"></div>Family Suite</div>
+          <div class="feat-item"><div class="feat-ball"></div>36 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="maxxroyal">S E Ç</button>
+          <button class="btn-more" data-hotel="maxxroyal">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 9: Sirene Belek Hotel (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="8" data-hotel="sirene">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10048/sirene-belek-hotel.jpg" alt="Sirene Belek Hotel">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Sirene Belek Hotel</div>
+        <div class="card-sub">Resort · Ultra All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Ücretsiz Golf Servisi
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>700m Özel Plaj</div>
+          <div class="feat-item"><div class="feat-ball"></div>7 Havuz + 15 Kaydırak</div>
+          <div class="feat-item"><div class="feat-ball"></div>10+ Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>Blue Flag Plaj</div>
+          <div class="feat-item"><div class="feat-ball"></div>Swim-up Suite</div>
+          <div class="feat-item"><div class="feat-ball"></div>30 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="sirene">S E Ç</button>
+          <button class="btn-more" data-hotel="sirene">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 10: Kempinski Hotel The Dome (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="9" data-hotel="kempinski">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10050/kempinski-hotel-the-dome-belek.jpg" alt="Kempinski Hotel The Dome">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Kempinski The Dome</div>
+        <div class="card-sub">Belek · Ultra All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          National Golf Club — 27 Delik
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>Özel Plaj & İskele</div>
+          <div class="feat-item"><div class="feat-ball"></div>3.600m² Dome Spa</div>
+          <div class="feat-item"><div class="feat-ball"></div>4 Alakart Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>Selçuklu Mimarisi</div>
+          <div class="feat-item"><div class="feat-ball"></div>Lagün Süitler</div>
+          <div class="feat-item"><div class="feat-ball"></div>20 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="kempinski">S E Ç</button>
+          <button class="btn-more" data-hotel="kempinski">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 11: Lykia World Antalya (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="10" data-hotel="lykia">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10052/lykia-world-antalya.jpg" alt="Lykia World Antalya">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Lykia World Antalya</div>
+        <div class="card-sub">Links Golf Resort · All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Lykia Links Golf — Türkiye'nin İlk Links
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>2.5 km Özel Plaj</div>
+          <div class="feat-item"><div class="feat-ball"></div>1.000.000 m² Alan</div>
+          <div class="feat-item"><div class="feat-ball"></div>449 Oda & Villa</div>
+          <div class="feat-item"><div class="feat-ball"></div>Perry Dye Tasarım</div>
+          <div class="feat-item"><div class="feat-ball"></div>18 Delik, Par 73</div>
+          <div class="feat-item"><div class="feat-ball"></div>45 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="lykia">S E Ç</button>
+          <button class="btn-more" data-hotel="lykia">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 12: Voyage Belek Golf & Spa (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="11" data-hotel="voyage">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10054/voyage-belek-golf-spa.jpg" alt="Voyage Belek Golf & Spa">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Voyage Belek Golf & Spa</div>
+        <div class="card-sub">Belek · Ultra All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Üç Golf Sahasına Yakın
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>Özel Plaj</div>
+          <div class="feat-item"><div class="feat-ball"></div>7 Havuz + Aquapark</div>
+          <div class="feat-item"><div class="feat-ball"></div>8 Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>Voyage Spa</div>
+          <div class="feat-item"><div class="feat-ball"></div>Aile Odaları</div>
+          <div class="feat-item"><div class="feat-ball"></div>30 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="voyage">S E Ç</button>
+          <button class="btn-more" data-hotel="voyage">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 13: Gloria Golf Resort (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="12" data-hotel="gloria-golf">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10056/gloria-golf-resort.jpg" alt="Gloria Golf Resort">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Gloria Golf Resort</div>
+        <div class="card-sub">Belek · Ultra All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Gloria 45 Delik — Bitişik
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>190.000 m² Alan</div>
+          <div class="feat-item"><div class="feat-ball"></div>Özel Plaj & Nehir</div>
+          <div class="feat-item"><div class="feat-ball"></div>515 Oda & Villa</div>
+          <div class="feat-item"><div class="feat-ball"></div>7 Restoran</div>
+          <div class="feat-item"><div class="feat-ball"></div>La Source Spa</div>
+          <div class="feat-item"><div class="feat-ball"></div>40 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="gloria-golf">S E Ç</button>
+          <button class="btn-more" data-hotel="gloria-golf">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 14: Cullinan Golf Resort (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="13" data-hotel="cullinan">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10058/cullinan-golf-resort.jpg" alt="Cullinan Golf Resort">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Cullinan Golf Resort</div>
+        <div class="card-sub">Belek · Ultra All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Cullinan Links Golf
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>Özel Beyaz Kum Plaj</div>
+          <div class="feat-item"><div class="feat-ball"></div>Lagün Havuzlar</div>
+          <div class="feat-item"><div class="feat-ball"></div>Gourmet Restoranlar</div>
+          <div class="feat-item"><div class="feat-ball"></div>Lagün Süitler</div>
+          <div class="feat-item"><div class="feat-ball"></div>Spa & Wellness</div>
+          <div class="feat-item"><div class="feat-ball"></div>35 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="cullinan">S E Ç</button>
+          <button class="btn-more" data-hotel="cullinan">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 15: Gloria Verde Resort (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="14" data-hotel="gloria-verde">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10060/gloria-verde-resort.jpg" alt="Gloria Verde Resort">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Gloria Verde Resort</div>
+        <div class="card-sub">Belek · All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Gloria 45 Delik — Erişim
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>Denize Sıfır</div>
+          <div class="feat-item"><div class="feat-ball"></div>Doğa Koruma Alanı</div>
+          <div class="feat-item"><div class="feat-ball"></div>Suite & Villa</div>
+          <div class="feat-item"><div class="feat-ball"></div>Family Friendly</div>
+          <div class="feat-item"><div class="feat-ball"></div>3 Restoran Kompleksi</div>
+          <div class="feat-item"><div class="feat-ball"></div>40 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="gloria-verde">S E Ç</button>
+          <button class="btn-more" data-hotel="gloria-verde">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- HOTEL 16: Kaya Belek Hotel (YENİ) -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card hidden" data-index="15" data-hotel="kaya-belek">
+      <div class="card-accent"></div>
+      <div class="card-img-wrap">
+        <img src="https://www.golfholidays.com/images/2000-10062/kaya-belek-hotel.jpg" alt="Kaya Belek Hotel">
+      </div>
+      <div class="card-body">
+        <div class="card-stars">★★★★★</div>
+        <div class="card-title">Kaya Belek Hotel</div>
+        <div class="card-sub">Belek · Ultra All Inclusive</div>
+        <div class="card-rule"></div>
+        <div class="golf-badge">
+          <svg class="golf-ball-icon"><use href="#gball"/></svg>
+          Eagles Golf — Yakın Mesafe
+        </div>
+        <div class="feat-grid">
+          <div class="feat-item"><div class="feat-ball"></div>Çam Ormanı İçinde</div>
+          <div class="feat-item"><div class="feat-ball"></div>Özel Plaj</div>
+          <div class="feat-item"><div class="feat-ball"></div>Spa & Fitness</div>
+          <div class="feat-item"><div class="feat-ball"></div>Aile Odaları</div>
+          <div class="feat-item"><div class="feat-ball"></div>Restoranlar</div>
+          <div class="feat-item"><div class="feat-ball"></div>35 dk Havaalanı</div>
+        </div>
+        <div class="card-btns">
+          <button class="btn-sel" data-hotel="kaya-belek">S E Ç</button>
+          <button class="btn-more" data-hotel="kaya-belek">Daha Fazla</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<button class="nav-arrow prev" id="prevBtn">‹</button>
+<button class="nav-arrow next" id="nextBtn">›</button>
+
+<!-- ── MODAL ── -->
+<div class="modal-ov" id="modal">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-hero"><img id="mHeroImg" src="" alt=""></div>
+    <div class="modal-body">
+      <div class="modal-label" id="mLabel"></div>
+      <div class="modal-title" id="mTitle"></div>
+      <div class="modal-stars">★★★★★</div>
+      <div class="modal-rule"></div>
+      <div class="modal-desc" id="mDesc"></div>
+      <div class="modal-sec">Otel Özellikleri</div>
+      <div class="modal-specs" id="mSpecs"></div>
+      <div class="modal-sec">Golf Sahası</div>
+      <div class="modal-golf">
+        <div class="modal-golf-title" id="mGolfTitle"></div>
+        <div class="modal-golf-desc" id="mGolfDesc"></div>
+      </div>
+      <div class="modal-sec" style="margin-bottom:8px">Fotoğraf Galerisi</div>
+      <div class="gallery-grid" id="mGallery"></div>
+      <div class="modal-actions">
+        <button class="m-btn-sel" id="mSelBtn">Bu Oteli Seç →</button>
+        <a class="m-btn-exp" id="mExpLink" href="#" target="_blank">⭐ Expedia Yorumları</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── LIGHTBOX ── -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lbClose">✕</button>
+  <button class="lb-prev" id="lbPrev">‹</button>
+  <img id="lbImg" src="" alt="">
+  <button class="lb-next" id="lbNext">›</button>
+  <div class="lb-counter" id="lbCounter"></div>
+</div>
+
+<script>
+/* ── Hotel Data ── 16 OTEL ── */
+const GH = 'https://www.golfholidays.com/images/1200-';
+
+const HOTELS = {
+  /* ── MEVCUT 4 OTEL ── */
+  regnum:{
+    label:'Ultra Lüks Resort',
+    title:'Regnum Carya Golf & Spa Resort',
+    hero:'https://www.golfholidays.com/images/2000-9998/regnum-carya.jpg',
+    desc:'Akdeniz kıyısında <em>bembeyaz kumlu sahil</em> üzerinde konumlanan Regnum Carya, Belek\'in tartışmasız en prestijli Golf & Spa Resort\'udur. <em>Carya Golf Course\'un tam ortasında</em> yer alan bu 5 yıldızlı otel, 530 odası ve 10 farklı restoranıyla eşsiz bir konfor sunar. Türkiye\'nin tek <em>ışıklı gece golfu</em> imkânını sunan sahaya da ev sahipliği yapar.',
+    specs:[
+      {l:'Oda',v:'530 Oda & Suite'},{l:'Konsept',v:'Ultra All Inclusive'},
+      {l:'Plaj',v:'Özel Kumlu Plaj'},{l:'Havuz',v:'8 Havuz'},
+      {l:'Havaalanı',v:'25 Dakika'},{l:'Restoran',v:'10 Restoran'},
+    ],
+    golf:'Carya Golf Club & National Golf Club',
+    golfDesc:'Carya Golf Course doğrudan otelin içindedir. Ayrıca Belek\'in ilk kulübü olan 27 delikli National Golf Club\'a da özel erişim mevcuttur. Türkiye\'nin tek gece golfe açık sahası burada yer almaktadır.',
+    photos:[
+      GH+'10033/regnum-carya.jpg',
+      GH+'10034/regnum-carya.jpg',
+      GH+'10035/regnum-carya.jpg',
+      GH+'10036/regnum-carya.jpg',
+      GH+'10037/regnum-carya.jpg',
+      GH+'10038/regnum-carya.jpg',
+      GH+'10039/regnum-carya.jpg',
+      'https://www.golfholidays.com/images/576-10033/regnum-carya.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Regnum-Carya-Golf-And-Spa-Resort.h4728474.Hotel-Information',
+  },
+  cornelia:{
+    label:'Dünya Standartları',
+    title:'Cornelia Diamond Golf Resort & Spa',
+    hero:'https://www.golfholidays.com/images/2000-8453/cornelia-diamond-golf-resort--spa.jpg',
+    desc:'Belek\'in muhteşem Akdeniz kıyısında, 200.000 m² alan üzerine kurulu <em>Cornelia Diamond</em>, lüks tatil anlayışını yeniden tanımlar. <em>Nick Faldo tasarımı 27 delikli</em> golf kulübüne yürüme mesafesindedir. Türkiye\'nin sayılı <em>ESPA sertifikalı spa merkezi</em>ne ev sahipliği yapar. Aqua park, delfinyum ve 8 havuzla aileler için eşsiz bir seçenek.',
+    specs:[
+      {l:'Oda',v:'571 Oda & Suite'},{l:'Konsept',v:'Diamond All Inclusive'},
+      {l:'Plaj',v:'250m Özel Plaj'},{l:'Havuz',v:'8 + Aqua Park'},
+      {l:'Havaalanı',v:'33 Dakika'},{l:'Spa',v:'5.000m² ESPA'},
+    ],
+    golf:'Cornelia Golf Club (Nick Faldo)',
+    golfDesc:'Otelden yürüme mesafesindeki Cornelia Golf Club, Sir Nick Faldo imzalı 27 delikli championship sahasına ev sahipliği yapar. King, Queen ve Prince olmak üzere 3 ayrı 9 delikli parkur bulunmaktadır.',
+    photos:[
+      GH+'8456/cornelia-diamond-golf-resort--spa.jpg',
+      GH+'8470/cornelia-diamond-golf-resort--spa.jpg',
+      GH+'8471/cornelia-diamond-golf-resort--spa.jpg',
+      GH+'8472/cornelia-diamond-golf-resort--spa.jpg',
+      GH+'8473/cornelia-diamond-golf-resort--spa.jpg',
+      GH+'8474/cornelia-diamond-golf-resort--spa.jpg',
+      GH+'8475/cornelia-diamond-golf-resort--spa.jpg',
+      'https://www.golfholidays.com/images/576-8456/cornelia-diamond-golf-resort--spa.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Cornelia-Diamond-Golf-Resort-And-Spa.h1073308.Hotel-Information',
+  },
+  gloria:{
+    label:'Huzur & Seçkinlik',
+    title:'Gloria Serenity Resort',
+    hero:'https://www.golfholidays.com/images/2000-9878/gloria-serenity-resort-hotel.jpg',
+    desc:'2007 yılında açılan <em>Gloria Serenity Resort</em>, modern ve zarif mimarisiyle Belek\'in en sakin ve seçkin otelleri arasındadır. 369 odası ve geniş wellness merkezi ile gerçek anlamda <em>huzurlu bir tatil deneyimi</em> sunar. Gloria Golf Resort\'un 45 delikli sahasına doğrudan erişim imkânı mevcuttur.',
+    specs:[
+      {l:'Oda',v:'369 Oda & Villa'},{l:'Konsept',v:'Ultra All Inclusive'},
+      {l:'Plaj',v:'Özel Plaj & İskele'},{l:'Havuz',v:'6 Havuz'},
+      {l:'Havaalanı',v:'45 Dakika'},{l:'Restoran',v:'6 Restoran'},
+    ],
+    golf:'Gloria Golf Club (Old, New & Verde)',
+    golfDesc:'Gloria Golf Resort, 3 ayrı 9 delikli parkurdan oluşan 45 delikli championship sahası ile uluslararası turnuvalara ev sahipliği yapmaktadır. Her seviyeden golfsevere hitap eder.',
+    photos:[
+      GH+'10050/gloria-serenity-resort-hotel.jpg',
+      GH+'9879/gloria-serenity-resort-hotel.jpg',
+      GH+'9880/gloria-serenity-resort-hotel.jpg',
+      GH+'9882/gloria-serenity-resort-hotel.jpg',
+      GH+'9883/gloria-serenity-resort-hotel.jpg',
+      'https://www.golfholidays.com/images/576-10050/gloria-serenity-resort-hotel.jpg',
+      GH+'9879/gloria-serenity-resort-hotel.jpg',
+      GH+'9880/gloria-serenity-resort-hotel.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Gloria-Serenity-Resort.h2343312.Hotel-Information',
+  },
+  kaya:{
+    label:'Mimari Şaheser',
+    title:'Kaya Palazzo Golf Resort',
+    hero:'https://www.golfholidays.com/images/2000-9897/kaya-palazzo-golf-resort.jpg',
+    desc:'<em>Kaya Palazzo Golf Resort</em>, 650.000 m²\'lik çam ormanları içindeki konumuyla Belek\'in en büyük ve en etkileyici resort oteli unvanını taşır. 2013\'te açılan otel, mimari yapısıyla ilk adımdan itibaren etki altına alır. 639 oda ve 12 restoranıyla sunulan eşsiz konfor; <em>Eagles Golf Club\'a</em> sıfır mesafedeki konumuyla buluşur.',
+    specs:[
+      {l:'Oda',v:'639 Oda & Villa'},{l:'Konsept',v:'Ultra All Inclusive'},
+      {l:'Plaj',v:'Özel Plaj & İskele'},{l:'Havuz',v:'10 Havuz'},
+      {l:'Havaalanı',v:'35 Dakika'},{l:'Restoran',v:'12 Restoran'},
+    ],
+    golf:'Kaya Palazzo Eagles Golf Club',
+    golfDesc:'650.000 m²\'lik çam ormanları içinde konumlanan Eagles Golf Club doğrudan otele bağlıdır. David Jones tasarımı 18 delikli parkur, benzersiz doğal yapısıyla her round\'u unutulmaz kılar.',
+    photos:[
+      GH+'9898/kaya-palazzo-golf-resort.jpg',
+      GH+'9899/kaya-palazzo-golf-resort.jpg',
+      GH+'9900/kaya-palazzo-golf-resort.jpg',
+      GH+'9901/kaya-palazzo-golf-resort.jpg',
+      GH+'9902/kaya-palazzo-golf-resort.jpg',
+      'https://www.golfholidays.com/images/576-9898/kaya-palazzo-golf-resort.jpg',
+      GH+'9899/kaya-palazzo-golf-resort.jpg',
+      GH+'9900/kaya-palazzo-golf-resort.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Kaya-Palazzo-Golf-Resort.h6138491.Hotel-Information',
+  },
+
+  /* ── YENİ 12 OTEL ── */
+  'sueno-deluxe':{
+    label:'Çift Resort Avantajı',
+    title:'Sueno Hotels Deluxe Belek',
+    hero:'https://www.golfholidays.com/images/2000-10040/sueno-hotels-deluxe-belek.jpg',
+    desc:'Modernizmin geleneksel Türk misafirperverliğiyle buluştuğu <em>Sueno Hotels Deluxe Belek</em>, Akdeniz\'in berrak sularında unutulmaz anılar biriktirmeniz için tasarlanmıştır. <em>Sueno Golf Club\'a</em> komşu konumuyla golf tutkunlarına eşsiz bir deneyim sunar. Sueno Hotels Golf Belek\'e <em>ücretsiz servis</em> ile iki resortun olanaklarından yararlanabilirsiniz.',
+    specs:[
+      {l:'Oda',v:'600+ Oda & Suite'},{l:'Konsept',v:'Deluxe All Inclusive'},
+      {l:'Plaj',v:'Özel Plaj & İskele'},{l:'Havuz',v:'7 Havuz + Aquapark'},
+      {l:'Havaalanı',v:'30 Dakika'},{l:'Restoran',v:'7 Restoran'},
+    ],
+    golf:'Sueno Golf Club (Pines & Dunes)',
+    golfDesc:'Sueno Golf Club, iki ayrı championship sahasıyla Belek\'in en popüler golf destinasyonlarından biridir. Pines ve Dunes olmak üzere iki 18 delikli parkur, hem profesyonel hem de amatör golfçülere hitap eder.',
+    photos:[
+      GH+'10041/sueno-hotels-deluxe-belek.jpg',
+      GH+'10042/sueno-hotels-deluxe-belek.jpg',
+      GH+'10043/sueno-hotels-deluxe-belek.jpg',
+      GH+'10044/sueno-hotels-deluxe-belek.jpg',
+      GH+'10045/sueno-hotels-deluxe-belek.jpg',
+      'https://www.golfholidays.com/images/576-10041/sueno-hotels-deluxe-belek.jpg',
+      GH+'10042/sueno-hotels-deluxe-belek.jpg',
+      GH+'10043/sueno-hotels-deluxe-belek.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Sueno-Hotels-Deluxe-Belek.h2313423.Hotel-Information',
+  },
+  'sueno-golf':{
+    label:'Stay & Play Mükemmelliği',
+    title:'Sueno Hotels Golf Belek',
+    hero:'https://www.golfholidays.com/images/2000-10042/sueno-hotels-golf-belek.jpg',
+    desc:'<em>Sueno Hotels Golf Belek</em>, iki championship golf sahasının tam ortasında konumlanan özel bir golf resortudur. <em>Pines ve Dunes</em> sahalarına adımınızı attığınız anda golf deneyiminiz başlar. Daha samimi ve golf odaklı atmosferiyle, <em>Sueno Deluxe\'e ücretsiz erişim</em> imkânıyla en iyi iki dünyayı bir arada sunar.',
+    specs:[
+      {l:'Oda',v:'174 Oda & Suite'},{l:'Konsept',v:'Deluxe All Inclusive'},
+      {l:'Plaj',v:'Deluxe Erişimi'},{l:'Havuz',v:'Havuz & Terrace'},
+      {l:'Havaalanı',v:'30 Dakika'},{l:'Restoran',v:'3 Restoran'},
+    ],
+    golf:'Sueno Golf Club — Pines & Dunes',
+    golfDesc:'Pines Course (Par 72, 6.413m) ve Dunes Course (Par 69) olmak üzere iki ayrı championship saha doğrudan otelin içindedir. Golf Academy, pro shop ve clubhouse ile tam donanımlı bir golf deneyimi.',
+    photos:[
+      GH+'10047/sueno-hotels-golf-belek.jpg',
+      GH+'10048/sueno-hotels-golf-belek.jpg',
+      GH+'10049/sueno-hotels-golf-belek.jpg',
+      GH+'10050/sueno-hotels-golf-belek.jpg',
+      'https://www.golfholidays.com/images/576-10047/sueno-hotels-golf-belek.jpg',
+      GH+'10048/sueno-hotels-golf-belek.jpg',
+      GH+'10049/sueno-hotels-golf-belek.jpg',
+      GH+'10050/sueno-hotels-golf-belek.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Sueno-Hotels-Golf-Belek.h209815.Hotel-Information',
+  },
+  titanic:{
+    label:'Devlerin Adresi',
+    title:'Titanic Deluxe Golf Belek',
+    hero:'https://www.golfholidays.com/images/2000-10044/titanic-deluxe-golf-belek.jpg',
+    desc:'170.000 m² üzerine kurulu <em>Titanic Deluxe Golf Belek</em>, Beşgöz Nehri\'nin muhteşem manzarası eşliğinde benzersiz bir tatil deneyimi sunar. <em>Titanic Golf Club\'ın 36 delikli</em> sahasına ev sahipliği yapar. 596 odası, 20 restoranı ve <em>BeFine SPA</em> ile aileler ve golfçüler için ideal bir destinasyon.',
+    specs:[
+      {l:'Oda',v:'596 Oda & Villa'},{l:'Konsept',v:'Deluxe All Inclusive'},
+      {l:'Plaj',v:'1km Özel Plaj'},{l:'Havuz',v:'10 Havuz + Aquapark'},
+      {l:'Havaalanı',v:'25 Dakika'},{l:'Restoran',v:'20 Restoran'},
+    ],
+    golf:'Titanic Golf Club — 36 Delik',
+    golfDesc:'Titanic Golf Club, 36 delikli championship sahasıyla Belek\'in en büyük golf komplekslerinden biridir. Hem profesyonel turnuvalara hem de günlük oyunlara ev sahipliği yapar.',
+    photos:[
+      GH+'10045/titanic-deluxe-golf-belek.jpg',
+      GH+'10046/titanic-deluxe-golf-belek.jpg',
+      GH+'10047/titanic-deluxe-golf-belek.jpg',
+      GH+'10048/titanic-deluxe-golf-belek.jpg',
+      'https://www.golfholidays.com/images/576-10045/titanic-deluxe-golf-belek.jpg',
+      GH+'10046/titanic-deluxe-golf-belek.jpg',
+      GH+'10047/titanic-deluxe-golf-belek.jpg',
+      GH+'10048/titanic-deluxe-golf-belek.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Titanic-Deluxe-Golf-Belek.h693436.Hotel-Information',
+  },
+  maxxroyal:{
+    label:'Sınırsız Lüks',
+    title:'Maxx Royal Belek Golf Resort',
+    hero:'https://www.golfholidays.com/images/2000-10046/maxx-royal-belek-golf-resort.jpg',
+    desc:'<em>Maxx Royal Belek</em>, Akdeniz\'in büyüleyici kıyısında, doğa ile mimarinin kusursuz uyumunu sunan bir sığınaktır. <em>Montgomerie Maxx Royal</em> championship sahası, dünyanın en prestijli turnuvalarına ev sahipliği yapmıştır. Maxx Inclusive konsepti, helikopter transferi ve <em>Maxx Assistant</em> hizmetiyle sınırsız lüks.',
+    specs:[
+      {l:'Oda',v:'Suite & Family'},{l:'Konsept',v:'Maxx Inclusive'},
+      {l:'Plaj',v:'Özel Plaj & İskele'},{l:'Havuz',v:'7 Havuz + Aquapark'},
+      {l:'Havaalanı',v:'36 Dakika'},{l:'Restoran',v:'10+ Restoran'},
+    ],
+    golf:'Montgomerie Maxx Royal Golf Club',
+    golfDesc:'Colin Montgomerie imzalı 18 delikli championship saha, son 9 delikte floodlight sistemi ile gece golfü imkânı sunar. Dünya çapında turnuvalara ev sahipliği yapan eşsiz bir parkur.',
+    photos:[
+      GH+'10049/maxx-royal-belek-golf-resort.jpg',
+      GH+'10050/maxx-royal-belek-golf-resort.jpg',
+      GH+'10051/maxx-royal-belek-golf-resort.jpg',
+      GH+'10052/maxx-royal-belek-golf-resort.jpg',
+      'https://www.golfholidays.com/images/576-10049/maxx-royal-belek-golf-resort.jpg',
+      GH+'10050/maxx-royal-belek-golf-resort.jpg',
+      GH+'10051/maxx-royal-belek-golf-resort.jpg',
+      GH+'10052/maxx-royal-belek-golf-resort.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Maxx-Royal-Belek-Golf-Resort.h7102910.Hotel-Information',
+  },
+  sirene:{
+    label:'Aile & Golf Uyumu',
+    title:'Sirene Belek Hotel',
+    hero:'https://www.golfholidays.com/images/2000-10048/sirene-belek-hotel.jpg',
+    desc:'<em>Sirene Belek Hotel</em>, 700 metrelik Blue Flag özel plajı, 15 kaydıraklı aquaparkı ve 7 havuzuyla ailelerin vazgeçilmez adresidir. <em>Ücretsiz golf servisi</em> ile Belek\'in tüm golf sahalarına kolay erişim. 2023 yenilemesiyle modern ve konforlu odalarıyla eşsiz bir deneyim sunar.',
+    specs:[
+      {l:'Oda',v:'Swim-up & Villa'},{l:'Konsept',v:'Ultra All Inclusive'},
+      {l:'Plaj',v:'700m Blue Flag'},{l:'Havuz',v:'7 Havuz + 15 Kaydırak'},
+      {l:'Havaalanı',v:'30 Dakika'},{l:'Restoran',v:'10+ Restoran'},
+    ],
+    golf:'Ücretsiz Golf Servisi',
+    golfDesc:'Otel, Belek\'in tüm golf sahalarına ücretsiz servis hizmeti sunar. National Golf Club, Carya Golf ve diğer tüm sahalara kolay ve konforlu ulaşım imkânı.',
+    photos:[
+      GH+'10049/sirene-belek-hotel.jpg',
+      GH+'10050/sirene-belek-hotel.jpg',
+      GH+'10051/sirene-belek-hotel.jpg',
+      GH+'10052/sirene-belek-hotel.jpg',
+      'https://www.golfholidays.com/images/576-10049/sirene-belek-hotel.jpg',
+      GH+'10050/sirene-belek-hotel.jpg',
+      GH+'10051/sirene-belek-hotel.jpg',
+      GH+'10052/sirene-belek-hotel.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Sirene-Belek-Hotel.h18210.Hotel-Information',
+  },
+  kempinski:{
+    label:'Selçuklu Elegansı',
+    title:'Kempinski Hotel The Dome Belek',
+    hero:'https://www.golfholidays.com/images/2000-10050/kempinski-hotel-the-dome-belek.jpg',
+    desc:'<em>Kempinski Hotel The Dome</em>, Türk tarihini modern lüksle harmanlayan eşsiz bir tasarım deneyimi sunar. <em>Selçuklu mimarisi</em>yle bezeli bu 5 yıldızlı otel, 3.600m² Dome Spa\'sı ve <em>Kırmızı Elbiseli Kadın</em> hizmetiyle kişiselleştirilmiş bir konaklama deneyimi yaşatır. National Golf Club\'a yürüme mesafesindedir.',
+    specs:[
+      {l:'Oda',v:'Lagün Süit & Villa'},{l:'Konsept',v:'Ultra All Inclusive'},
+      {l:'Plaj',v:'Özel Plaj & İskele'},{l:'Spa',v:'3.600m² Dome Spa'},
+      {l:'Havaalanı',v:'20 Dakika'},{l:'Restoran',v:'4 Alakart + Büfe'},
+    ],
+    golf:'National Golf Club — 27 Delik',
+    golfDesc:'Belek\'in ilk ve en köklü golf kulübü olan National Golf Club, otele yürüme mesafesindedir. 27 delikli parkur, her seviyeden golfçüye hitap eden zorluğuyla ünlüdür.',
+    photos:[
+      GH+'10051/kempinski-hotel-the-dome-belek.jpg',
+      GH+'10052/kempinski-hotel-the-dome-belek.jpg',
+      GH+'10053/kempinski-hotel-the-dome-belek.jpg',
+      GH+'10054/kempinski-hotel-the-dome-belek.jpg',
+      'https://www.golfholidays.com/images/576-10051/kempinski-hotel-the-dome-belek.jpg',
+      GH+'10052/kempinski-hotel-the-dome-belek.jpg',
+      GH+'10053/kempinski-hotel-the-dome-belek.jpg',
+      GH+'10054/kempinski-hotel-the-dome-belek.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Kempinski-Hotel-The-Dome-Belek.h80168.Hotel-Information',
+  },
+  lykia:{
+    label:'Links Golf Efsanesi',
+    title:'Lykia World Antalya Golf Resort',
+    hero:'https://www.golfholidays.com/images/2000-10052/lykia-world-antalya.jpg',
+    desc:'1.000.000 m² üzerine kurulu <em>Lykia World Antalya</em>, Akdeniz ve Toros Dağları\'nın eşsiz manzarası eşliğinde <em>Türkiye\'nin ilk Links golf sahasına</em> ev sahipliği yapar. Perry Dye tasarımı 18 delikli parkur, dünyada sadece 300 adet olan Links sahalarından biridir. 2.5 km\'lik özel plajıyla benzersiz bir destinasyon.',
+    specs:[
+      {l:'Oda',v:'449 Oda & Villa'},{l:'Konsept',v:'All Inclusive'},
+      {l:'Plaj',v:'2.5 km Özel Plaj'},{l:'Alan',v:'1.000.000 m²'},
+      {l:'Havaalanı',v:'45 Dakika'},{l:'Golf',v:'18 Delik, Par 73'},
+    ],
+    golf:'Lykia Links Golf Club — Perry Dye',
+    golfDesc:'Türkiye\'nin ilk ve tek Links golf sahası olan Lykia Links, ünlü Amerikalı tasarımcı Perry Dye imzasını taşır. 18 delik, Par 73, 6.800m uzunluğundaki saha İskoç usulü "Vur ve Koş" atışlarına da imkân verir.',
+    photos:[
+      GH+'10053/lykia-world-antalya.jpg',
+      GH+'10054/lykia-world-antalya.jpg',
+      GH+'10055/lykia-world-antalya.jpg',
+      GH+'10056/lykia-world-antalya.jpg',
+      'https://www.golfholidays.com/images/576-10053/lykia-world-antalya.jpg',
+      GH+'10054/lykia-world-antalya.jpg',
+      GH+'10055/lykia-world-antalya.jpg',
+      GH+'10056/lykia-world-antalya.jpg',
+    ],
+    expedia:'https://www.expedia.com/Antalya-Hotels-Lykia-World-Links-Golf-Antalya.h2345678.Hotel-Information',
+  },
+  voyage:{
+    label:'Aktif Tatil Merkezi',
+    title:'Voyage Belek Golf & Spa',
+    hero:'https://www.golfholidays.com/images/2000-10054/voyage-belek-golf-spa.jpg',
+    desc:'<em>Voyage Belek Golf & Spa</em>, Belek\'in en popüler golf ve spa resortlarından biridir. Üç farklı golf sahasına yakın konumu, 7 havuzu ve aquaparkıyla hem golfçüler hem aileler için ideal bir seçenek. <em>Voyage Spa</em> merkezi, geniş wellness olanaklarıyla rahatlama ve yenilenme imkânı sunar.',
+    specs:[
+      {l:'Oda',v:'Aile Odaları & Suite'},{l:'Konsept',v:'Ultra All Inclusive'},
+      {l:'Plaj',v:'Özel Plaj'},{l:'Havuz',v:'7 Havuz + Aquapark'},
+      {l:'Havaalanı',v:'30 Dakika'},{l:'Restoran',v:'8 Restoran'},
+    ],
+    golf:'Üç Golf Sahasına Yakın Erişim',
+    golfDesc:'National Golf Club, Carya Golf ve Sueno Golf Club\'a kısa mesafede konumlanan Voyage Belek, golfçülere çeşitli sahalar arasında seçim yapma özgürlüğü sunar.',
+    photos:[
+      GH+'10055/voyage-belek-golf-spa.jpg',
+      GH+'10056/voyage-belek-golf-spa.jpg',
+      GH+'10057/voyage-belek-golf-spa.jpg',
+      GH+'10058/voyage-belek-golf-spa.jpg',
+      'https://www.golfholidays.com/images/576-10055/voyage-belek-golf-spa.jpg',
+      GH+'10056/voyage-belek-golf-spa.jpg',
+      GH+'10057/voyage-belek-golf-spa.jpg',
+      GH+'10058/voyage-belek-golf-spa.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Voyage-Belek-Golf-Spa.h3456789.Hotel-Information',
+  },
+  'gloria-golf':{
+    label:'Golfün Kalbi',
+    title:'Gloria Golf Resort',
+    hero:'https://www.golfholidays.com/images/2000-10056/gloria-golf-resort.jpg',
+    desc:'1997\'de açılan <em>Gloria Golf Resort</em>, Özaltın Holding\'in ilk oteli olarak Belek\'in golf turizminin öncüsü olmuştur. 190.000 m² alan üzerine kurulu resort, <em>Türkiye\'nin en büyük 45 delikli golf kompleksine</em> ev sahipliği yapar. 515 odası, 7 restoranı ve La Source Spa\'sıyla eşsiz bir deneyim.',
+    specs:[
+      {l:'Oda',v:'515 Oda & Villa'},{l:'Konsept',v:'Ultra All Inclusive'},
+      {l:'Plaj',v:'Özel Plaj & Nehir'},{l:'Havuz',v:'Havuz & Aquapark'},
+      {l:'Havaalanı',v:'40 Dakika'},{l:'Restoran',v:'7 Restoran'},
+    ],
+    golf:'Gloria Golf Club — 45 Delik',
+    golfDesc:'Gloria Golf Club, Old Course, New Course ve Verde Course olmak üzere 3 ayrı 9 delikli parkurdan oluşan toplam 45 delikli championship sahadır. Michel Gayon tasarımıyla uluslararası turnuvalara ev sahipliği yapar.',
+    photos:[
+      GH+'10057/gloria-golf-resort.jpg',
+      GH+'10058/gloria-golf-resort.jpg',
+      GH+'10059/gloria-golf-resort.jpg',
+      GH+'10060/gloria-golf-resort.jpg',
+      'https://www.golfholidays.com/images/576-10057/gloria-golf-resort.jpg',
+      GH+'10058/gloria-golf-resort.jpg',
+      GH+'10059/gloria-golf-resort.jpg',
+      GH+'10060/gloria-golf-resort.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Gloria-Golf-Resort.h9136.Hotel-Information',
+  },
+  cullinan:{
+    label:'Elmas Gibi Parlak',
+    title:'Cullinan Belek Golf Resort',
+    hero:'https://www.golfholidays.com/images/2000-10058/cullinan-golf-resort.jpg',
+    desc:'Keşfedilmiş en büyük elmastan ilham alan <em>Cullinan Belek</em>, Akdeniz\'in kalbinde benzersiz ayrıcalıklarla misafirlerini ağırlar. Özel beyaz kum plajı, lagün havuzları ve <em>gourmet restoranları</em>yla lüksün yeni tanımını sunar. Golf severler için Cullinan Links Golf\'e yakın konumda.',
+    specs:[
+      {l:'Oda',v:'Lagün Süit & Villa'},{l:'Konsept',v:'Ultra All Inclusive'},
+      {l:'Plaj',v:'Özel Beyaz Kum'},{l:'Havuz',v:'Lagün Havuzlar'},
+      {l:'Havaalanı',v:'35 Dakika'},{l:'Restoran',v:'Gourmet Restoranlar'},
+    ],
+    golf:'Cullinan Links Golf',
+    golfDesc:'Cullinan Links Golf Club, otele yakın konumda yer alan zorlu ve keyifli bir 18 delikli parkurdur. Benzersiz doğal yapısıyla unutulmaz bir golf deneyimi sunar.',
+    photos:[
+      GH+'10059/cullinan-golf-resort.jpg',
+      GH+'10060/cullinan-golf-resort.jpg',
+      GH+'10061/cullinan-golf-resort.jpg',
+      GH+'10062/cullinan-golf-resort.jpg',
+      'https://www.golfholidays.com/images/576-10059/cullinan-golf-resort.jpg',
+      GH+'10060/cullinan-golf-resort.jpg',
+      GH+'10061/cullinan-golf-resort.jpg',
+      GH+'10062/cullinan-golf-resort.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Cullinan-Belek.h5678901.Hotel-Information',
+  },
+  'gloria-verde':{
+    label:'Doğa ile İç İçe',
+    title:'Gloria Verde Resort',
+    hero:'https://www.golfholidays.com/images/2000-10060/gloria-verde-resort.jpg',
+    desc:'2001\'de açılan <em>Gloria Verde Resort</em>, inşaat sırasında tek bir ağacın bile kesilmediği <em>doğa koruma alanı</em> içinde konumlanır. Gloria Golf Resort ve Gloria Serenity Resort\'un tüm olanaklarına erişim imkânı sunar. Denize sıfır konumu ve family-friendly konseptiyle ailelerin gözdesi.',
+    specs:[
+      {l:'Oda',v:'Suite & Family'},{l:'Konsept',v:'All Inclusive'},
+      {l:'Plaj',v:'Denize Sıfır'},{l:'Alan',v:'Doğa Koruma'},
+      {l:'Havaalanı',v:'40 Dakika'},{l:'Restoran',v:'3 Restoran'},
+    ],
+    golf:'Gloria Golf Club — 45 Delik Erişim',
+    golfDesc:'Gloria Verde Resort konukları, Gloria Golf Club\'ın 45 delikli championship sahalarına özel erişim imkânına sahiptir. Üç ayrı parkur arasında seçim yapabilirsiniz.',
+    photos:[
+      GH+'10061/gloria-verde-resort.jpg',
+      GH+'10062/gloria-verde-resort.jpg',
+      GH+'10063/gloria-verde-resort.jpg',
+      GH+'10064/gloria-verde-resort.jpg',
+      'https://www.golfholidays.com/images/576-10061/gloria-verde-resort.jpg',
+      GH+'10062/gloria-verde-resort.jpg',
+      GH+'10063/gloria-verde-resort.jpg',
+      GH+'10064/gloria-verde-resort.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Gloria-Verde-Resort.h6789012.Hotel-Information',
+  },
+  'kaya-belek':{
+    label:'Çam Ormanı İçinde',
+    title:'Kaya Belek Hotel',
+    hero:'https://www.golfholidays.com/images/2000-10062/kaya-belek-hotel.jpg',
+    desc:'<em>Kaya Belek Hotel</em>, Belek\'in huzurlu çam ormanları içinde yer alan şık bir 5 yıldızlı resorttur. Eagles Golf Club\'a yakın konumu, spa ve fitness olanaklarıyla golf tutkunları için ideal bir seçenek. Aile odaları ve çocuk dostu tesisleriyle her yaştan misafire hitap eder.',
+    specs:[
+      {l:'Oda',v:'Aile Odaları & Suite'},{l:'Konsept',v:'Ultra All Inclusive'},
+      {l:'Plaj',v:'Özel Plaj'},{l:'Havuz',v:'Havuz & Spa'},
+      {l:'Havaalanı',v:'35 Dakika'},{l:'Restoran',v:'Restoranlar'},
+    ],
+    golf:'Eagles Golf Club — Yakın Mesafe',
+    golfDesc:'Kaya Palazzo Eagles Golf Club, otele kısa mesafede yer alır. David Jones tasarımı 18 delikli parkur, çam ormanları içinde benzersiz bir golf deneyimi sunar.',
+    photos:[
+      GH+'10063/kaya-belek-hotel.jpg',
+      GH+'10064/kaya-belek-hotel.jpg',
+      GH+'10065/kaya-belek-hotel.jpg',
+      GH+'10066/kaya-belek-hotel.jpg',
+      'https://www.golfholidays.com/images/576-10063/kaya-belek-hotel.jpg',
+      GH+'10064/kaya-belek-hotel.jpg',
+      GH+'10065/kaya-belek-hotel.jpg',
+      GH+'10066/kaya-belek-hotel.jpg',
+    ],
+    expedia:'https://www.expedia.com/Belek-Hotels-Kaya-Belek.h7890123.Hotel-Information',
+  },
+};
+
+/* ── Carousel ── */
+const cards=[...document.querySelectorAll('.card')];
+let cur=0,total=cards.length;
+function upd(){
+  cards.forEach((c,i)=>{
+    c.classList.remove('active','prev','next','hidden');
+    if(i===cur)c.classList.add('active');
+    else if(i===(cur-1+total)%total)c.classList.add('prev');
+    else if(i===(cur+1)%total)c.classList.add('next');
+    else c.classList.add('hidden');
+  });
+}
+document.getElementById('prevBtn').onclick=()=>{cur=(cur-1+total)%total;upd()};
+document.getElementById('nextBtn').onclick=()=>{cur=(cur+1)%total;upd()};
+cards.forEach((c,i)=>c.addEventListener('click',()=>{if(i!==cur){cur=i;upd()}}));
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft')document.getElementById('prevBtn').click();
+  if(e.key==='ArrowRight')document.getElementById('nextBtn').click();
+  if(e.key==='Escape'){closeModal();closeLB();}
+});
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50){if(d<0)document.getElementById('nextBtn').click();else document.getElementById('prevBtn').click();}},{passive:true});
+
+/* ── Modal ── */
+const modal=document.getElementById('modal');
+let curHotel='';
+function openModal(key){
+  curHotel=key;
+  const h=HOTELS[key];
+  document.getElementById('mHeroImg').src=h.hero;
+  document.getElementById('mLabel').textContent=h.label;
+  document.getElementById('mTitle').textContent=h.title;
+  document.getElementById('mDesc').innerHTML=h.desc;
+  document.getElementById('mGolfTitle').textContent=h.golf;
+  document.getElementById('mGolfDesc').textContent=h.golfDesc;
+  document.getElementById('mSpecs').innerHTML=h.specs.map(s=>`<div class="spec-item"><div class="spec-label">${s.l}</div><div class="spec-val">${s.v}</div></div>`).join('');
+  const gal=document.getElementById('mGallery');
+  gal.innerHTML=h.photos.map((p,i)=>`<div class="gallery-item" data-idx="${i}"><img src="${p}" alt="" loading="lazy"></div>`).join('');
+  gal.querySelectorAll('.gallery-item').forEach(el=>{
+    el.onclick=()=>openLB(key,+el.dataset.idx);
+  });
+  document.getElementById('mExpLink').href=h.expedia;
+  document.getElementById('mSelBtn').onclick=()=>selectHotel(key);
+  modal.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){modal.classList.remove('open');document.body.style.overflow='';}
+document.getElementById('modalClose').onclick=closeModal;
+modal.onclick=e=>{if(e.target===modal)closeModal()};
+
+/* ── Lightbox ── */
+const lb=document.getElementById('lightbox');
+let lbPhotos=[],lbIdx=0;
+function openLB(key,idx){
+  lbPhotos=HOTELS[key].photos;
+  lbIdx=idx;
+  showLB();
+  lb.classList.add('open');
+}
+function showLB(){
+  document.getElementById('lbImg').src=lbPhotos[lbIdx];
+  document.getElementById('lbCounter').textContent=`${lbIdx+1} / ${lbPhotos.length}`;
+}
+function closeLB(){lb.classList.remove('open')}
+document.getElementById('lbClose').onclick=closeLB;
+document.getElementById('lbPrev').onclick=()=>{lbIdx=(lbIdx-1+lbPhotos.length)%lbPhotos.length;showLB()};
+document.getElementById('lbNext').onclick=()=>{lbIdx=(lbIdx+1)%lbPhotos.length;showLB()};
+lb.onclick=e=>{if(e.target===lb)closeLB()};
+
+/* ── Seç ── */
+function selectHotel(key){
+  localStorage.setItem('priveHotel',key);
+  document.querySelectorAll('.btn-sel').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll(`.btn-sel[data-hotel="${key}"]`).forEach(b=>{b.classList.add('selected');b.textContent='✓ Seçildi'});
+  closeModal();
+  setTimeout(()=>{window.location.href='page5.html'},800);
+}
+document.querySelectorAll('.btn-sel').forEach(b=>b.onclick=e=>{e.stopPropagation();selectHotel(b.dataset.hotel)});
+document.querySelectorAll('.btn-more').forEach(b=>b.onclick=e=>{e.stopPropagation();openModal(b.dataset.hotel)});
+
+/* Lang */
+document.querySelectorAll('.lang-btn').forEach(b=>{
+  if(b.dataset.lang===(localStorage.getItem('privelang')||'tr'))b.classList.add('active');
+  b.onclick=()=>{
+    document.querySelectorAll('.lang-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    localStorage.setItem('privelang',b.dataset.lang);
+  };
+});
+</script>
+</body>
+</html>
