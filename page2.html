@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privé Belek — Select Dates</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a1a10}
+
+.bg-img{position:fixed;inset:0;z-index:0}
+.bg-img img{width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.85) saturate(.85)}
+.ov1{position:fixed;inset:0;z-index:1;background:radial-gradient(ellipse at 30% 50%,rgba(0,0,0,.02) 0%,rgba(0,0,0,.40) 100%)}
+.ov2{position:fixed;inset:0;z-index:2;background:linear-gradient(to bottom,rgba(0,0,0,.45) 0%,rgba(0,0,0,0) 45%,rgba(0,0,0,0) 55%,rgba(0,0,0,.45) 100%)}
+
+/* ── TOP BAR ── */
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:100;padding:32px 48px;display:flex;align-items:center;justify-content:space-between;opacity:0;animation:fadeIn 1s .6s ease forwards}
+
+.back-btn{
+  font-family:'Montserrat',sans-serif;font-size:9px;font-weight:400;letter-spacing:.35em;
+  color:#E8D5A8;text-decoration:none;text-transform:uppercase;
+  display:flex;align-items:center;gap:12px;transition:color .4s;
+  text-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+.back-btn::before{content:'←';font-size:13px;color:#C9A96E;transition:all .4s}
+.back-btn:hover{color:#F5F1EB}
+.back-btn:hover::before{color:#E8D5A8;transform:translateX(-3px)}
+
+.lang-switcher{display:flex;align-items:center;gap:8px}
+.lang-btn{
+  font-family:'Montserrat',sans-serif;font-size:9px;font-weight:400;letter-spacing:.15em;
+  color:rgba(245,241,235,.55);background:none;border:none;cursor:pointer;padding:4px 8px;
+  transition:all .4s ease;text-transform:uppercase;position:relative;
+  text-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+.lang-btn:hover{color:#E8D5A8}
+.lang-btn.active{color:#E8D5A8;font-weight:500}
+.lang-btn.active::after{content:'';position:absolute;bottom:0;left:8px;right:8px;height:1px;background:#C9A96E}
+
+/* ── STAGE ── */
+.stage{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 20px 100px;overflow-y:auto}
+
+/* ── STEP INDICATOR ── */
+.step-w{display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:28px;opacity:0;animation:fadeIn 1s 1.0s ease forwards}
+
+.step-circle{
+  width:52px;height:52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  border:1.5px solid rgba(201,169,110,.6);
+  background:rgba(10,26,16,.35);
+  backdrop-filter:blur(8px);
+  box-shadow:0 4px 20px rgba(0,0,0,.25),0 0 0 1px rgba(201,169,110,.1);
+}
+.step-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-weight:400;color:#E8D5A8;
+  text-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+.step-label{
+  font-family:'Montserrat',sans-serif;
+  font-size:8px;font-weight:500;letter-spacing:.45em;
+  text-transform:uppercase;color:#C9A96E;
+  text-shadow:0 2px 10px rgba(0,0,0,.5);
+}
+
+/* ── LOCATION ── */
+.loc-w{display:flex;flex-direction:column;align-items:center;gap:18px;margin-bottom:72px;opacity:0;animation:fadeIn 1.2s 1.4s ease forwards}
+
+.loc-orn{display:flex;align-items:center;gap:14px}
+.loc-orn .line{width:40px;height:.5px;background:rgba(201,169,110,.5)}
+.loc-orn .dot{width:5px;height:5px;background:#E8D5A8;transform:rotate(45deg);box-shadow:0 0 8px rgba(201,169,110,.3)}
+
+.loc-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(52px,9vw,100px);font-weight:300;
+  letter-spacing:.22em;color:#F5F1EB;line-height:1;
+  text-shadow:0 4px 20px rgba(0,0,0,.5),0 1px 3px rgba(0,0,0,.3);
+}
+.loc-sub{
+  font-family:'Montserrat',sans-serif;
+  font-size:clamp(9px,1.1vw,11px);font-weight:500;letter-spacing:.55em;
+  text-transform:uppercase;color:#E8D5A8;
+  text-shadow:0 2px 12px rgba(0,0,0,.5);
+}
+
+/* ── DATE SECTION ── */
+.date-w{display:flex;flex-direction:column;align-items:center;gap:36px;opacity:0;animation:fadeIn 1.2s 2.0s ease forwards}
+
+.date-label{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(20px,3vw,32px);font-weight:300;font-style:italic;
+  letter-spacing:.03em;color:#F5F1EB;
+  text-shadow:0 3px 15px rgba(0,0,0,.5),0 1px 4px rgba(0,0,0,.3);
+}
+.date-label em{color:#E8D5A8;font-style:italic}
+
+.date-row{display:flex;align-items:flex-end;gap:32px;flex-wrap:wrap;justify-content:center}
+
+.date-field{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.date-field label{
+  font-family:'Montserrat',sans-serif;font-size:8px;font-weight:500;letter-spacing:.45em;
+  text-transform:uppercase;color:#E8D5A8;padding-left:4px;
+  text-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+.date-field input{
+  font-family:'Montserrat',sans-serif;font-size:15px;font-weight:300;letter-spacing:.05em;
+  color:#F5F1EB;background:rgba(10,26,16,.45);
+  border:1px solid rgba(201,169,110,.3);
+  padding:18px 24px;outline:none;width:190px;
+  transition:all .5s ease;backdrop-filter:blur(12px);
+  cursor:pointer;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
+}
+.date-field input:hover,.date-field input:focus{
+  border-color:rgba(201,169,110,.6);
+  background:rgba(10,26,16,.6);
+  box-shadow:0 4px 30px rgba(201,169,110,.12),0 8px 32px rgba(0,0,0,.3);
+}
+.date-field input::-webkit-calendar-picker-indicator{
+  filter:invert(.8) sepia(.3) saturate(3) hue-rotate(10deg);
+  cursor:pointer;opacity:.6;transition:opacity .3s;
+}
+.date-field input::-webkit-calendar-picker-indicator:hover{opacity:1}
+
+.date-sep{
+  width:32px;height:.5px;background:rgba(201,169,110,.4);
+  margin-bottom:24px;
+}
+
+/* ── CTA ── */
+.btn-cta{
+  font-family:'Montserrat',sans-serif;font-size:10px;font-weight:500;letter-spacing:.5em;
+  text-transform:uppercase;color:#E8D5A8;
+  background:rgba(10,26,16,.25);
+  padding:20px 56px;
+  border:1px solid rgba(201,169,110,.4);
+  text-decoration:none;cursor:pointer;
+  transition:all .6s cubic-bezier(.16,1,.3,1);
+  position:relative;overflow:hidden;
+  margin-top:8px;
+  text-shadow:0 2px 8px rgba(0,0,0,.3);
+  backdrop-filter:blur(4px);
+}
+.btn-cta::before{
+  content:'';position:absolute;inset:0;
+  background:#C9A96E;transform:scaleX(0);transform-origin:left;
+  transition:transform .6s cubic-bezier(.16,1,.3,1);z-index:-1;
+}
+.btn-cta:hover{color:#0a1a10;border-color:#C9A96E;letter-spacing:.6em}
+.btn-cta:hover::before{transform:scaleX(1)}
+.btn-cta:active{transform:scale(.97)}
+
+/* ── BOTTOM ── */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;z-index:20;padding:32px 48px;display:flex;justify-content:center;opacity:0;animation:fadeIn 1s 3.0s ease forwards}
+.bottom-bar span{
+  font-family:'Montserrat',sans-serif;font-size:9px;font-weight:400;letter-spacing:.4em;
+  text-transform:uppercase;color:#E8D5A8;
+  text-shadow:0 2px 10px rgba(0,0,0,.4);
+}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes riseIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  .top-bar{padding:16px 20px}
+  .back-btn{font-size:7px;letter-spacing:.25em;gap:8px}
+  .back-btn::before{font-size:11px}
+  .lang-btn{font-size:7px;padding:3px 6px;letter-spacing:.1em}
+
+  .step-w{gap:10px;margin-bottom:20px}
+  .step-circle{width:40px;height:40px}
+  .step-num{font-size:18px}
+  .step-label{font-size:6.5px;letter-spacing:.35em}
+
+  .loc-w{gap:12px;margin-bottom:48px}
+  .loc-orn .line{width:28px}
+  .loc-orn .dot{width:4px;height:4px}
+  .loc-name{font-size:clamp(36px,12vw,64px);letter-spacing:.15em}
+  .loc-sub{font-size:8px;letter-spacing:.4em}
+
+  .date-w{gap:24px}
+  .date-label{font-size:clamp(16px,4vw,24px)}
+
+  .date-row{flex-direction:column;align-items:center;gap:16px;width:100%;max-width:320px}
+  .date-field{width:100%;align-items:center}
+  .date-field label{font-size:7.5px;letter-spacing:.35em;padding-left:0}
+  .date-field input{width:100%;max-width:280px;padding:14px 18px;font-size:14px}
+  .date-sep{width:24px;margin:4px auto}
+
+  .btn-cta{padding:16px 40px;font-size:9px;letter-spacing:.4em;width:100%;max-width:280px;text-align:center}
+
+  .bottom-bar{padding:20px 24px}
+  .bottom-bar span{font-size:7.5px;letter-spacing:.3em}
+}
+
+@media (max-width: 480px) {
+  .top-bar{padding:12px 16px}
+  .loc-name{font-size:clamp(28px,10vw,48px)}
+  .date-label{font-size:clamp(14px,3.5vw,20px)}
+  .date-field input{padding:12px 16px;font-size:13px}
+  .btn-cta{padding:14px 32px;font-size:8px}
+  .step-circle{width:36px;height:36px}
+  .step-num{font-size:16px}
+}
+
+@media (max-width: 360px) {
+  .loc-name{font-size:clamp(24px,9vw,40px);letter-spacing:.1em}
+  .date-field input{font-size:12px;padding:10px 14px}
+  .btn-cta{padding:12px 28px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-img"><img src="2.webp" alt="Belek"></div>
+<div class="ov1"></div>
+<div class="ov2"></div>
+
+<div class="top-bar">
+  <a class="back-btn" href="intro.html" data-i18n="back">Geri</a>
+  <div class="lang-switcher">
+    <button class="lang-btn active" data-lang="tr">TR</button>
+    <button class="lang-btn" data-lang="de">DE</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="ru">RU</button>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="step-w">
+    <div class="step-circle"><span class="step-num">1</span></div>
+    <div class="step-label" data-i18n="stepLabel">Step</div>
+  </div>
+
+  <div class="loc-w">
+    <div class="loc-orn"><div class="line"></div><div class="dot"></div><div class="line"></div></div>
+    <div class="loc-name">BELEK</div>
+    <div class="loc-sub" data-i18n="locSub">Antalya · Turkish Riviera</div>
+  </div>
+
+  <div class="date-w">
+    <div class="date-label" data-i18n="dateLabel">When will you <em>arrive?</em></div>
+    <div class="date-row">
+      <div class="date-field">
+        <label data-i18n="checkIn">Giriş</label>
+        <input type="date" id="checkIn">
+      </div>
+      <div class="date-sep"></div>
+      <div class="date-field">
+        <label data-i18n="checkOut">Çıkış</label>
+        <input type="date" id="checkOut">
+      </div>
+    </div>
+    <a class="btn-cta" id="btnContinue" href="#">
+      <span data-i18n="continue">Devam Et</span>
+    </a>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <span data-i18n="footer">Privé Belek — Luxury Golf Experiences</span>
+</div>
+
+<script>
+const translations = {
+  tr: {
+    back: "Geri", stepLabel: "Rezervasyon Tarihi", locSub: "Antalya · Turkish Riviera",
+    dateLabel: "Lütfen Gelmek İstediğiniz <em>Tarihleri Seçiniz</em>",
+    checkIn: "Giriş", checkOut: "Çıkış",
+    continue: "Devam Et", footer: "Privé Belek — Lüks Golf Deneyimleri"
+  },
+  de: {
+    back: "Zurück", stepLabel: "Reservierungsdatum", locSub: "Antalya · Türkische Riviera",
+    dateLabel: "Bitte wählen Sie Ihre <em>gewünschten Daten</em>",
+    checkIn: "Anreise", checkOut: "Abreise",
+    continue: "Weiter", footer: "Privé Belek — Luxus Golf Erlebnisse"
+  },
+  en: {
+    back: "Back", stepLabel: "Reservation Date", locSub: "Antalya · Turkish Riviera",
+    dateLabel: "Please Select Your <em>Preferred Dates</em>",
+    checkIn: "Check-in", checkOut: "Check-out",
+    continue: "Continue", footer: "Privé Belek — Luxury Golf Experiences"
+  },
+  ru: {
+    back: "Назад", stepLabel: "Дата бронирования", locSub: "Анталия · Турецкая Ривьера",
+    dateLabel: "Пожалуйста, выберите <em>желаемые даты</em>",
+    checkIn: "Заезд", checkOut: "Выезд",
+    continue: "Продолжить", footer: "Privé Belek — Роскошный Гольф"
+  }
+};
+
+const langBtns = document.querySelectorAll('.lang-btn');
+const i18nEls = document.querySelectorAll('[data-i18n]');
+
+function setLang(lang) {
+  langBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
+  const t = translations[lang];
+  i18nEls.forEach(el => { const key = el.dataset.i18n; if (t[key] !== undefined) el.innerHTML = t[key]; });
+  document.documentElement.lang = lang;
+  localStorage.setItem('privelang', lang);
+}
+
+langBtns.forEach(btn => btn.addEventListener('click', () => setLang(btn.dataset.lang)));
+const savedLang = localStorage.getItem('privelang') || 'tr';
+setLang(savedLang);
+
+const checkIn = document.getElementById('checkIn');
+const checkOut = document.getElementById('checkOut');
+const btnContinue = document.getElementById('btnContinue');
+
+const today = new Date().toISOString().split('T')[0];
+checkIn.min = today;
+checkIn.addEventListener('change', () => {
+  checkOut.min = checkIn.value;
+  if (checkOut.value && checkOut.value <= checkIn.value) checkOut.value = '';
+});
+
+btnContinue.addEventListener('click', e => {
+  e.preventDefault();
+  if (!checkIn.value || !checkOut.value) {
+    const msg = {tr:"Lütfen tarih seçin",de:"Bitte Datum wählen",en:"Please select dates",ru:"Выберите даты"};
+    alert(msg[document.documentElement.lang] || 'Select dates');
+    return;
+  }
+  localStorage.setItem('priveCheckIn', checkIn.value);
+  localStorage.setItem('priveCheckOut', checkOut.value);
+  btnContinue.style.pointerEvents = 'none';
+  btnContinue.style.opacity = '.6';
+  setTimeout(() => window.location.href = 'page3.html', 500);
+});
+</script>
+</body>
+</html>
