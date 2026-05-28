@@ -91,6 +91,41 @@ body{overflow-y:auto;overflow-x:hidden;padding-bottom:80px}
 .btn-select.has-rounds:hover{background:rgba(201,169,110,.1)}
 
 /* ═══ MODAL ═══ */
+/* ═══ SUMMARY MODAL ═══ */
+.sm-ov{position:fixed;inset:0;z-index:450;background:rgba(0,0,0,.94);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.sm-ov.open{opacity:1;pointer-events:all}
+.sm{width:min(720px,96vw);max-height:92vh;background:rgba(8,20,12,.97);border:1px solid rgba(201,169,110,.2);overflow-y:auto;position:relative;display:flex;flex-direction:column;border-radius:4px}
+.sm-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(201,169,110,.15);border:.5px solid rgba(201,169,110,.3);color:#C9A96E;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background .3s}
+.sm-close:hover{background:rgba(201,169,110,.3)}
+.sm-header{text-align:center;padding:24px 20px 16px;border-bottom:.5px solid rgba(201,169,110,.1)}
+.sm-title{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,4vw,28px);font-weight:300;letter-spacing:.12em;color:#F5F1EB}
+.sm-title em{color:#C9A96E;font-style:italic}
+.sm-sub{font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:rgba(201,169,110,.55);margin-top:6px}
+.sm-body{padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.sm-player-card{border:1px solid rgba(201,169,110,.12);background:rgba(14,30,18,.6);border-radius:3px;overflow:hidden}
+.sm-player-header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:.5px solid rgba(201,169,110,.08);background:rgba(201,169,110,.03)}
+.sm-avatar{width:30px;height:30px;border-radius:50%;background:rgba(201,169,110,.12);border:1px solid rgba(201,169,110,.25);display:flex;align-items:center;justify-content:center;color:#C9A96E;font-family:'Cormorant Garamond',serif;font-size:14px}
+.sm-player-name{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:400;color:#F5F1EB}
+.sm-player-total{font-size:7.5px;letter-spacing:.15em;text-transform:uppercase;color:rgba(201,169,110,.5);margin-left:auto}
+.sm-player-body{padding:8px 14px}
+.sm-course-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:.5px solid rgba(201,169,110,.05)}
+.sm-course-row:last-child{border-bottom:none}
+.sm-course-img{width:50px;height:36px;overflow:hidden;border-radius:2px;flex-shrink:0}
+.sm-course-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.85)}
+.sm-course-info{flex:1;min-width:0}
+.sm-course-name{font-size:11px;font-weight:400;color:rgba(245,241,235,.9)}
+.sm-course-round{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:#C9A96E;flex-shrink:0;min-width:30px;text-align:right}
+.sm-empty{font-size:10px;color:rgba(245,241,235,.3);font-style:italic;text-align:center;padding:12px 0}
+.sm-totals{display:flex;justify-content:center;gap:24px;padding:12px 20px;border-top:.5px solid rgba(201,169,110,.1);border-bottom:.5px solid rgba(201,169,110,.1);background:rgba(201,169,110,.02)}
+.sm-total-item{text-align:center}
+.sm-total-val{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:#F5F1EB}
+.sm-total-lbl{font-size:6.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,169,110,.45);margin-top:2px}
+.sm-actions{display:flex;gap:10px;padding:16px 20px 20px;justify-content:center}
+.sm-btn-back{font-size:8.5px;letter-spacing:.3em;text-transform:uppercase;color:#C9A96E;background:transparent;border:1px solid rgba(201,169,110,.4);padding:12px 30px;cursor:pointer;transition:all .3s;border-radius:2px}
+.sm-btn-back:hover{background:rgba(201,169,110,.1)}
+.sm-btn-confirm{font-size:8.5px;letter-spacing:.3em;text-transform:uppercase;color:#060f09;background:#C9A96E;padding:12px 40px;border:none;cursor:pointer;transition:background .3s;border-radius:2px}
+.sm-btn-confirm:hover{background:#E8D5A8}
+
 .cm-ov{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
 .cm-ov.open{opacity:1;pointer-events:all}
 body.modal-open .next-bar{display:none !important}
@@ -242,6 +277,23 @@ body.modal-open .next-bar{display:none !important}
   .cm-done{width:100%;padding:12px 20px;margin:16px auto 0;font-size:8px}
   .next-bar{position:fixed;bottom:0;left:0;right:0;padding:8px 12px;z-index:999}
   .btn-next{width:100%;padding:12px 20px;font-size:8px;letter-spacing:.3em;max-width:none}
+  .sm{width:98vw;border-radius:3px}
+  .sm-header{padding:18px 14px 12px}
+  .sm-title{font-size:20px}
+  .sm-body{padding:12px 14px;gap:10px}
+  .sm-player-header{padding:8px 12px}
+  .sm-player-name{font-size:14px}
+  .sm-player-body{padding:6px 12px}
+  .sm-course-row{gap:8px;padding:6px 0}
+  .sm-course-img{width:44px;height:32px}
+  .sm-course-name{font-size:10px}
+  .sm-course-round{font-size:14px}
+  .sm-totals{gap:16px;padding:10px 14px}
+  .sm-total-val{font-size:18px}
+  .sm-actions{padding:12px 14px 16px;gap:8px}
+  .sm-btn-back{padding:10px 20px;font-size:7.5px}
+  .sm-btn-confirm{padding:10px 28px;font-size:7.5px}
+
 }
 </style>
 <base target="_blank">
