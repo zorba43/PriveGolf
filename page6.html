@@ -187,45 +187,85 @@ html,body{width:100%;height:100%;overflow:hidden;background:#060f09}
 /* MOBILE */
 @media (max-width:768px){
   .top-bar{padding:10px 16px}
-  .back-btn{font-size:7.5px;letter-spacing:.2em}
-  .step-circle{width:36px;height:36px}
-  .step-num{font-size:18px}
-  .step-lbl{font-size:6px;letter-spacing:.3em}
-  .lb2{font-size:7.5px;padding:3px 5px}
-  .hdr{top:76px}
-  .hdr-title{font-size:clamp(16px,5vw,24px);letter-spacing:.08em}
-  .setup-strip{top:118px}
-  .si{padding:8px 14px}
-  .si-lbl{font-size:6px;letter-spacing:.3em}
+  .back-btn{font-size:9px;letter-spacing:.2em}
+  .step-circle{width:38px;height:38px}
+  .step-num{font-size:19px}
+  .step-lbl{font-size:6.5px;letter-spacing:.3em}
+  .lb2{font-size:9px;padding:3px 5px}
+  .hdr{top:78px}
+  .hdr-title{font-size:clamp(20px,6vw,28px);letter-spacing:.08em}
+  .setup-strip{top:122px;flex-direction:row;gap:0}
+  .si{padding:8px 16px}
+  .si-lbl{font-size:7px;letter-spacing:.3em}
   .sc-val{font-size:18px}
-  .sc-btn{width:24px;height:24px;font-size:13px}
-  .player-names{top:178px;gap:6px;padding:0 16px}
-  .pn-input-wrap{min-width:120px;padding:5px 8px}
-  .pn-input{font-size:10px;padding:5px 8px}
-  .pn-lock-btn{width:20px;height:20px;font-size:10px}
-  .prog-bar{top:228px;gap:8px}
-  .prog-track{width:140px}
-  #lockMsg{top:228px}
-  .scroll-wrap{top:252px;bottom:56px}
-  .cc-body{grid-template-columns:80px 1fr auto;gap:10px;padding:10px 12px}
-  .cc-img{width:80px;height:58px}
-  .cc-name{font-size:14px}
-  .cc-sub{font-size:6.5px}
-  .cc-spec-item{font-size:7px}
-  .btn-select{padding:8px 16px;font-size:7px;letter-spacing:.2em}
-  .cm-photo{flex:0 0 200px;height:130px}
+  .sc-btn{width:28px;height:28px;font-size:14px}
+  .player-names{top:180px;gap:8px;padding:0 16px;flex-wrap:wrap;justify-content:center}
+  .pn-input-wrap{min-width:130px;padding:6px 10px;flex:0 0 auto}
+  .pn-input{font-size:12px;padding:6px 10px}
+  .pn-lock-btn{width:22px;height:22px;font-size:11px}
+  .prog-bar{top:232px;gap:8px}
+  .prog-track{width:160px}
+  #lockMsg{top:232px}
+  .scroll-wrap{top:258px;bottom:60px;padding:0 12px}
+  .courses-inner{padding:0 12px 12px;gap:8px}
+  .cc-body{grid-template-columns:1fr;gap:10px;padding:12px 14px;text-align:center}
+  .cc-img{width:100%;height:160px;margin:0 auto}
+  .cc-img img{filter:brightness(.9)}
+  .cc-info{text-align:center}
+  .cc-name{font-size:17px}
+  .cc-sub{font-size:8px}
+  .cc-specs-row{justify-content:center;gap:10px}
+  .cc-spec-item{font-size:8px}
+  .cc-summary{font-size:11px;margin-top:6px}
+  .cc-select-col{width:100%}
+  .btn-select{width:100%;padding:12px 20px;font-size:9px;letter-spacing:.25em}
+  .cm{width:96vw}
+  .cm-photo{flex:0 0 220px;height:150px}
   .cm-specs{grid-template-columns:1fr 1fr}
+  .cm-player-row{padding:12px 0}
+  .cm-pr-name{font-size:13px}
+  .cm-s-btn{width:32px;height:32px;font-size:16px}
+  .cm-s-val{font-size:22px}
+  .cm-done{width:100%;padding:14px 20px;font-size:10px}
+  .next-bar{padding:12px}
+  .btn-next{width:100%;padding:14px 20px;font-size:9px;letter-spacing:.35em}
 }
 @media (max-width:480px){
-  .player-names{flex-direction:column;align-items:center}
-  .pn-input-wrap{width:100%;max-width:280px}
-  .cc-body{grid-template-columns:70px 1fr auto;gap:8px;padding:8px 10px}
-  .cc-img{width:70px;height:50px}
-  .cc-name{font-size:13px}
-  .cc-specs-row{gap:8px}
-  .btn-select{padding:7px 12px;font-size:6.5px}
-  .cm{width:98vw}
-  .cm-photo{flex:0 0 160px;height:100px}
+  .top-bar{padding:8px 12px}
+  .back-btn{font-size:8px}
+  .step-circle{width:34px;height:34px}
+  .step-num{font-size:17px}
+  .step-lbl{font-size:6px}
+  .lb2{font-size:8px;padding:2px 4px}
+  .hdr{top:72px}
+  .hdr-title{font-size:clamp(18px,7vw,24px)}
+  .setup-strip{top:114px}
+  .si{padding:6px 12px}
+  .si-lbl{font-size:6.5px}
+  .sc-val{font-size:16px}
+  .sc-btn{width:26px;height:26px;font-size:13px}
+  .player-names{top:170px;gap:6px;padding:0 12px}
+  .pn-input-wrap{min-width:110px;padding:5px 8px}
+  .pn-input{font-size:11px;padding:5px 8px}
+  .pn-lock-btn{width:20px;height:20px;font-size:10px}
+  .prog-bar{top:222px}
+  .prog-track{width:120px}
+  #lockMsg{top:222px}
+  .scroll-wrap{top:246px;bottom:56px}
+  .cc-body{padding:10px 12px}
+  .cc-img{height:140px}
+  .cc-name{font-size:15px}
+  .cc-sub{font-size:7.5px}
+  .cc-spec-item{font-size:7px}
+  .cc-summary{font-size:10px}
+  .btn-select{padding:10px 16px;font-size:8px}
+  .cm-photo{flex:0 0 180px;height:120px}
+  .cm-specs{grid-template-columns:1fr}
+  .cm-pr-name{font-size:12px}
+  .cm-s-btn{width:28px;height:28px;font-size:14px}
+  .cm-s-val{font-size:20px}
+  .cm-done{padding:12px 16px}
+  .btn-next{padding:12px 16px;font-size:8px}
 }
 </style>
 </head>
