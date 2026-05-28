@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privé Belek — Oyun Planlama</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#060f09}
+.bg{position:fixed;inset:0;z-index:0}
+.bg img{width:100%;height:100%;object-fit:cover;filter:brightness(.42) saturate(.8)}
+.ov{position:fixed;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,.72) 0%,rgba(0,0,0,.18) 28%,rgba(0,0,0,.18) 65%,rgba(0,0,0,.78) 100%)}
+
+/* TOP BAR */
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:200;padding:13px 40px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.back-btn{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.3em;color:rgba(232,213,168,.75);text-decoration:none;text-transform:uppercase;display:flex;align-items:center;gap:8px;justify-self:start}
+.back-btn::before{content:'←';font-size:13px;color:#C9A96E}
+.step-w{display:flex;flex-direction:column;align-items:center;gap:4px;justify-self:center}
+.step-circle{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(201,169,110,.5);background:rgba(6,15,9,.6)}
+.step-num{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:300;color:#E8D5A8}
+.step-lbl{font-family:'Montserrat',sans-serif;font-size:6.5px;letter-spacing:.4em;text-transform:uppercase;color:#C9A96E;white-space:nowrap}
+.lang-sw{display:flex;gap:2px;justify-self:end}
+.lb2{font-family:'Montserrat',sans-serif;font-size:8.5px;color:rgba(245,241,235,.4);background:none;border:none;cursor:pointer;padding:4px 6px;text-transform:uppercase}
+.lb2.active{color:#E8D5A8;font-weight:500}
+
+/* HEADER */
+.hdr{position:fixed;top:84px;left:0;right:0;z-index:200;text-align:center}
+.hdr-title{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,2.8vw,34px);font-weight:300;letter-spacing:.12em;color:#F5F1EB;text-shadow:0 4px 20px rgba(0,0,0,.8)}
+.hdr-title em{color:#C9A96E;font-style:italic}
+
+/* SETUP STRIP */
+.setup-strip{
+  position:fixed;top:130px;left:50%;transform:translateX(-50%);z-index:200;
+  display:flex;align-items:stretch;gap:0;
+  background:rgba(6,15,9,.82);border:1px solid rgba(201,169,110,.22);
+  backdrop-filter:blur(14px);
+}
+.si{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 22px}
+.si-lbl{font-family:'Montserrat',sans-serif;font-size:6.5px;letter-spacing:.4em;text-transform:uppercase;color:rgba(201,169,110,.65)}
+.si-ctrl{display:flex;align-items:center;gap:8px}
+.sc-btn{width:26px;height:26px;border-radius:50%;border:.5px solid rgba(201,169,110,.3);background:transparent;color:#C9A96E;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .3s}
+.sc-btn:hover{background:rgba(201,169,110,.15)}
+.sc-val{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:#F5F1EB;min-width:24px;text-align:center}
+.sdiv{width:.5px;background:rgba(201,169,110,.18);margin:6px 0}
+
+/* PLAYER NAMES — CENTERED */
+.player-names{
+  position:fixed;top:188px;left:50%;transform:translateX(-50%);z-index:200;
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+  gap:8px;
+  width:min(900px,calc(100vw - 32px));max-width:860px;
+  padding:0 20px;
+}
+.pn-input-wrap{display:flex;align-items:center;gap:6px;background:rgba(6,15,9,.85);border:.5px solid rgba(201,169,110,.25);padding:6px 10px;border-radius:4px;min-width:140px;flex:0 0 auto}
+.pn-input{
+  font-family:'Montserrat',sans-serif;font-size:11px;font-weight:400;
+  color:#F5F1EB;background:rgba(20,35,25,.5);border:.5px solid rgba(201,169,110,.3);
+  border-radius:3px;outline:none;width:100%;padding:6px 10px;
+  caret-color:#C9A96E;
+}
+.pn-input::placeholder{color:rgba(245,241,235,.22);font-style:italic}
+.pn-input.locked{color:rgba(201,169,110,.9);pointer-events:none}
+.pn-lock-btn{width:22px;height:22px;border-radius:50%;border:.5px solid rgba(201,169,110,.3);background:transparent;color:rgba(201,169,110,.6);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s}
+.pn-lock-btn:hover{background:rgba(201,169,110,.15);color:#C9A96E}
+.pn-lock-btn.locked{background:#C9A96E;color:#060f09;border-color:#C9A96E}
+.pn-display{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:400;color:rgba(201,169,110,.9);cursor:pointer;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px}
+.pn-display:hover{color:#E8D5A8}
+
+/* PROGRESS */
+.prog-bar{
+  position:fixed;top:240px;left:50%;transform:translateX(-50%);z-index:200;
+  display:flex;align-items:center;gap:10px;
+}
+.prog-lbl{font-family:'Montserrat',sans-serif;font-size:7px;letter-spacing:.3em;text-transform:uppercase;color:rgba(232,213,168,.55)}
+.prog-track{width:200px;height:2px;background:rgba(201,169,110,.15);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:#C9A96E;transition:width .4s;border-radius:2px}
+.prog-cnt{font-family:'Cormorant Garamond',serif;font-size:15px;color:#C9A96E}
+
+/* LOCK MESSAGE */
+#lockMsg{position:fixed;top:240px;left:0;right:0;z-index:100;text-align:center}
+#lockMsg span{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.35em;text-transform:uppercase;color:rgba(201,169,110,.5)}
+
+/* SCROLL AREA */
+.scroll-wrap{position:fixed;top:264px;bottom:64px;left:0;right:0;z-index:10;overflow-y:auto;overflow-x:hidden}
+.scroll-wrap::-webkit-scrollbar{width:2px}
+.scroll-wrap::-webkit-scrollbar-thumb{background:rgba(201,169,110,.2)}
+.courses-inner{max-width:960px;margin:0 auto;padding:0 28px 12px;display:flex;flex-direction:column;gap:10px}
+
+/* COURSE CARD — NEW DESIGN */
+.cc{border:1px solid rgba(201,169,110,.14);background:rgba(8,20,12,.88);overflow:hidden;transition:border-color .3s,transform .3s}
+.cc:hover{border-color:rgba(201,169,110,.3);transform:translateY(-1px)}
+.cc.hotel-cc{border-color:rgba(201,169,110,.45);background:rgba(14,30,18,.92)}
+
+/* Card layout: image left, info center, select button right */
+.cc-body{display:grid;grid-template-columns:110px 1fr auto;align-items:center;gap:16px;padding:14px 18px}
+.cc-img{width:110px;height:78px;overflow:hidden;flex-shrink:0;border-radius:3px}
+.cc-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.8);transition:filter .3s}
+.cc:hover .cc-img img{filter:brightness(.95)}
+.cc-info{min-width:0}
+.cc-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;color:#F5F1EB;letter-spacing:.04em;line-height:1.2}
+.cc-sub{font-family:'Montserrat',sans-serif;font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(201,169,110,.6);margin-top:3px}
+.cc-specs-row{display:flex;gap:12px;margin-top:6px;flex-wrap:wrap}
+.cc-spec-item{font-family:'Montserrat',sans-serif;font-size:7.5px;letter-spacing:.15em;text-transform:uppercase;color:rgba(201,169,110,.5)}
+.cc-spec-item strong{color:rgba(245,241,235,.7);font-weight:400}
+.hotel-pin{font-family:'Montserrat',sans-serif;font-size:6.5px;letter-spacing:.18em;text-transform:uppercase;color:#C9A96E;background:rgba(201,169,110,.1);border:.5px solid rgba(201,169,110,.25);padding:2px 7px;display:inline-block;margin-top:4px}
+
+/* Summary badge on card */
+.cc-summary{font-family:'Montserrat',sans-serif;font-size:9px;color:rgba(201,169,110,.8);margin-top:4px;min-height:16px}
+.cc-summary.empty{color:rgba(201,169,110,.25)}
+
+/* Select button */
+.cc-select-col{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
+.btn-select{
+  font-family:'Montserrat',sans-serif;font-size:8px;letter-spacing:.25em;text-transform:uppercase;
+  color:#060f09;background:#C9A96E;padding:10px 24px;border:none;cursor:pointer;
+  transition:background .3s,transform .2s;white-space:nowrap;
+}
+.btn-select:hover{background:#E8D5A8;transform:scale(1.02)}
+.btn-select.has-rounds{background:transparent;color:#C9A96E;border:1px solid rgba(201,169,110,.4)}
+.btn-select.has-rounds:hover{background:rgba(201,169,110,.1)}
+
+/* COURSE MODAL */
+.cm-ov{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.cm-ov.open{opacity:1;pointer-events:all}
+.cm{width:min(780px,94vw);max-height:90vh;background:rgba(8,20,12,.97);border:1px solid rgba(201,169,110,.2);overflow-y:auto;position:relative;display:flex;flex-direction:column}
+.cm-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(201,169,110,.15);border:.5px solid rgba(201,169,110,.3);color:#C9A96E;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background .3s}
+.cm-close:hover{background:rgba(201,169,110,.3)}
+
+/* Modal photos */
+.cm-photos{display:flex;gap:6px;overflow-x:auto;padding:16px 16px 10px;scrollbar-width:thin;scrollbar-color:rgba(201,169,110,.2) transparent}
+.cm-photos::-webkit-scrollbar{height:3px}
+.cm-photos::-webkit-scrollbar-thumb{background:rgba(201,169,110,.2)}
+.cm-photo{flex:0 0 260px;height:170px;overflow:hidden;cursor:pointer;border-radius:3px}
+.cm-photo img{width:100%;height:100%;object-fit:cover;filter:brightness(.8);transition:filter .3s}
+.cm-photo:hover img{filter:brightness(1)}
+
+/* Modal body */
+.cm-body{padding:0 20px 20px}
+.cm-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:#F5F1EB;letter-spacing:.04em}
+.cm-sub{font-family:'Montserrat',sans-serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,169,110,.55);margin-top:3px}
+.cm-rule{width:50px;height:1px;background:rgba(201,169,110,.3);margin:12px 0}
+.cm-desc{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:300;color:rgba(245,241,235,.6);line-height:1.7;margin-bottom:16px}
+
+/* Modal specs */
+.cm-section{font-family:'Montserrat',sans-serif;font-size:8px;letter-spacing:.35em;text-transform:uppercase;color:#C9A96E;margin:16px 0 10px}
+.cm-specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:16px}
+.cm-spec{background:rgba(201,169,110,.04);border:.5px solid rgba(201,169,110,.1);padding:8px 12px;border-radius:2px}
+.cm-spec-l{font-family:'Montserrat',sans-serif;font-size:6px;letter-spacing:.3em;text-transform:uppercase;color:rgba(201,169,110,.5);margin-bottom:3px}
+.cm-spec-v{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:300;color:rgba(245,241,235,.85)}
+
+/* Modal player selection */
+.cm-players-title{font-family:'Montserrat',sans-serif;font-size:8px;letter-spacing:.35em;text-transform:uppercase;color:#C9A96E;margin:16px 0 10px}
+.cm-player-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:.5px solid rgba(201,169,110,.08)}
+.cm-player-row:last-child{border-bottom:none}
+.cm-pr-left{display:flex;align-items:center;gap:10px}
+.cm-checkbox{width:16px;height:16px;border:.5px solid rgba(201,169,110,.4);background:transparent;appearance:none;cursor:pointer;position:relative;flex-shrink:0;border-radius:2px}
+.cm-checkbox:checked{background:#C9A96E;border-color:#C9A96E}
+.cm-checkbox:checked::after{content:'✓';position:absolute;top:-1px;left:2px;font-size:11px;color:#060f09;font-weight:700}
+.cm-pr-name{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:300;color:rgba(245,241,235,.9)}
+.cm-stepper{display:flex;align-items:center;gap:10px}
+.cm-s-btn{width:28px;height:28px;border-radius:50%;border:.5px solid rgba(201,169,110,.3);background:transparent;color:#C9A96E;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .3s}
+.cm-s-btn:hover:not(:disabled){background:rgba(201,169,110,.12)}
+.cm-s-btn:disabled{opacity:.25;cursor:not-allowed}
+.cm-s-val{font-family:'Cormorant Garamond',serif;font-size:20px;color:#F5F1EB;min-width:22px;text-align:center}
+.cm-s-lbl{font-family:'Montserrat',sans-serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,169,110,.45)}
+
+.cm-done{
+  font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.35em;text-transform:uppercase;
+  color:#060f09;background:#C9A96E;padding:12px 50px;border:none;cursor:pointer;
+  display:block;margin:20px auto 0;transition:background .3s;
+}
+.cm-done:hover{background:#E8D5A8}
+
+/* LIGHTBOX */
+.lb{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.96);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.lb.open{opacity:1;pointer-events:all}
+.lb img{max-width:90vw;max-height:88vh;object-fit:contain}
+.lb-close{position:absolute;top:18px;right:22px;width:36px;height:36px;border-radius:50%;background:rgba(201,169,110,.15);border:.5px solid rgba(201,169,110,.3);color:#C9A96E;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* NEXT */
+.next-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;padding:10px;display:flex;justify-content:center;background:rgba(4,10,7,.6);backdrop-filter:blur(8px)}
+.btn-next{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.45em;text-transform:uppercase;color:#060f09;background:#C9A96E;padding:12px 60px;border:none;cursor:pointer;transition:background .3s,opacity .3s;opacity:.35;pointer-events:none}
+.btn-next.ready{opacity:1;pointer-events:all}
+.btn-next.ready:hover{background:#E8D5A8}
+
+/* MOBILE */
+@media (max-width:768px){
+  .top-bar{padding:10px 16px}
+  .back-btn{font-size:7.5px;letter-spacing:.2em}
+  .step-circle{width:36px;height:36px}
+  .step-num{font-size:18px}
+  .step-lbl{font-size:6px;letter-spacing:.3em}
+  .lb2{font-size:7.5px;padding:3px 5px}
+  .hdr{top:76px}
+  .hdr-title{font-size:clamp(16px,5vw,24px);letter-spacing:.08em}
+  .setup-strip{top:118px}
+  .si{padding:8px 14px}
+  .si-lbl{font-size:6px;letter-spacing:.3em}
+  .sc-val{font-size:18px}
+  .sc-btn{width:24px;height:24px;font-size:13px}
+  .player-names{top:178px;gap:6px;padding:0 16px}
+  .pn-input-wrap{min-width:120px;padding:5px 8px}
+  .pn-input{font-size:10px;padding:5px 8px}
+  .pn-lock-btn{width:20px;height:20px;font-size:10px}
+  .prog-bar{top:228px;gap:8px}
+  .prog-track{width:140px}
+  #lockMsg{top:228px}
+  .scroll-wrap{top:252px;bottom:56px}
+  .cc-body{grid-template-columns:80px 1fr auto;gap:10px;padding:10px 12px}
+  .cc-img{width:80px;height:58px}
+  .cc-name{font-size:14px}
+  .cc-sub{font-size:6.5px}
+  .cc-spec-item{font-size:7px}
+  .btn-select{padding:8px 16px;font-size:7px;letter-spacing:.2em}
+  .cm-photo{flex:0 0 200px;height:130px}
+  .cm-specs{grid-template-columns:1fr 1fr}
+}
+@media (max-width:480px){
+  .player-names{flex-direction:column;align-items:center}
+  .pn-input-wrap{width:100%;max-width:280px}
+  .cc-body{grid-template-columns:70px 1fr auto;gap:8px;padding:8px 10px}
+  .cc-img{width:70px;height:50px}
+  .cc-name{font-size:13px}
+  .cc-specs-row{gap:8px}
+  .btn-select{padding:7px 12px;font-size:6.5px}
+  .cm{width:98vw}
+  .cm-photo{flex:0 0 160px;height:100px}
+}
+</style>
+</head>
+<body>
+<div class="bg"><img src="6.webp" alt=""></div>
+<div class="ov"></div>
+
+<div class="top-bar">
+  <a class="back-btn" href="page5.html">Geri</a>
+  <div class="step-w">
+    <div class="step-circle"><span class="step-num">5</span></div>
+    <div class="step-lbl">Oyun Planlama</div>
+  </div>
+  <div class="lang-sw">
+    <button class="lb2 active">TR</button>
+    <button class="lb2">DE</button>
+    <button class="lb2">EN</button>
+    <button class="lb2">RU</button>
+  </div>
+</div>
+
+<div class="hdr">
+  <div class="hdr-title">Golf <em>Programınızı</em> Oluşturun</div>
+</div>
+
+<div class="setup-strip">
+  <div class="si">
+    <div class="si-lbl">Toplam Round</div>
+    <div class="si-ctrl">
+      <button class="sc-btn" id="rdMinus">−</button>
+      <div class="sc-val" id="rdVal">4</div>
+      <button class="sc-btn" id="rdPlus">+</button>
+    </div>
+  </div>
+  <div class="sdiv"></div>
+  <div class="si">
+    <div class="si-lbl">Oyuncu Sayısı</div>
+    <div class="si-ctrl">
+      <button class="sc-btn" id="plMinus">−</button>
+      <div class="sc-val" id="plVal">2</div>
+      <button class="sc-btn" id="plPlus">+</button>
+    </div>
+  </div>
+</div>
+
+<div class="player-names" id="playerNames"></div>
+
+<div class="prog-bar" id="progBar" style="display:none">
+  <div class="prog-lbl">Planlanan</div>
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-cnt"><span id="progCur">0</span> / <span id="progTot">4</span></div>
+</div>
+
+<div id="lockMsg" style="position:fixed;top:240px;left:0;right:0;z-index:100;text-align:center"><span>Tüm oyuncu isimlerini girin ve onaylayın</span></div>
+
+<div class="scroll-wrap" id="coursesWrap" style="display:none">
+  <div class="courses-inner" id="coursesList"></div>
+</div>
+
+<!-- COURSE MODAL -->
+<div class="cm-ov" id="cmOv">
+  <div class="cm" id="cmBox">
+    <button class="cm-close" id="cmClose">✕</button>
+    <div class="cm-photos" id="cmPhotos"></div>
+    <div class="cm-body">
+      <div class="cm-title" id="cmTitle"></div>
+      <div class="cm-sub" id="cmSub"></div>
+      <div class="cm-rule"></div>
+      <div class="cm-desc" id="cmDesc"></div>
+      <div class="cm-section">Saha Özellikleri</div>
+      <div class="cm-specs" id="cmSpecs"></div>
+      <div class="cm-players-title">Oyuncu & Round Seçimi</div>
+      <div id="cmPlayers"></div>
+      <button class="cm-done" id="cmDone">Kaydet & Kapat</button>
+    </div>
+  </div>
+</div>
+
+<div class="lb" id="lb">
+  <button class="lb-close" id="lbClose">✕</button>
+  <img id="lbImg" src="" alt="">
+</div>
+
+<div class="next-bar" id="nextBar" style="display:none">
+  <button class="btn-next" id="btnNext">Devam Et →</button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   DATA — Golf courses with proper folder structure
+═══════════════════════════════════════ */
+const HOTEL_COURSE_MAP = {
+  sueno:'sueno', sueno_golf:'sueno',
+  cornelia:'cornelia', kaya:'kaya_palazzo',
+  titanic:'titanic', maxx:'montgomerie', regnum:'carya',
+  sirene:'antalya', kempinski:'antalya',
+  gloria_golf:'gloria', gloria_serenity:'gloria',
+  gloria_verde:'gloria_verde', cullinan:'cullinan',
+  lykia:'lykia', voyage:'voyage',
+};
+const NO_MANDATORY_COURSE = new Set(['kaya_belek']);
+
+const COURSES = [
+  {
+    key:'carya', name:'Carya Golf Club', sub:'European Tour Venue · Belek',
+    folder:'Carya_Golf_Club',
+    mainImg:'Carya_1.webp',
+    photos:['Carya_1.webp','Carya_2.webp','Carya_3.webp'],
+    desc:`Carya Golf Club, European Tour'a ev sahipliği yapan Belek'in en prestijli parkuru. İngiliz heathland tarzında tasarlanmis 18 delikli championship saha.`,
+    specs:{'Tasarimci':'Thomson Perrett & Lobb','Delik':'18','Par':'72','Uzunluk':'6.864 m','Handicap':'Erkek 28 / Kadin 36'}
+  },
+  {
+    key:'national', name:'National Golf Club', sub:'Belek · 27 Delik',
+    folder:'National_Golf_Club',
+    mainImg:'National_1.webp',
+    photos:['National_1.webp','National_2.webp','National_3.webp'],
+    desc:`Turkiye'nin ilk golf kulubu (1994). David Jones ve David Feherty tasarimi. 27 delikli championship sahasi (Irmak & Tuna).`,
+    specs:{'Tasarimci':'David Jones & David Feherty','Delik':'27','Par':'72','Handicap':'Erkek 28 / Kadin 36'}
+  },
+  {
+    key:'cornelia', name:'Cornelia Golf Club', sub:'Nick Faldo Design · 27 Delik',
+    folder:'Cornelia_Golf_Club',
+    mainImg:'Faldo_1.webp',
+    photos:['Faldo_1.webp','Faldo_2.webp','Faldo_3.webp'],
+    desc:`Sir Nick Faldo tasarimi. King, Queen ve Prince olmak uzere 3 ayri 9 delikli parkur. Her gun farkli kombinasyonlarla oynanabilir.`,
+    specs:{'Tasarimci':'Sir Nick Faldo','Delik':'27','Par':'72','Handicap':'Erkek 28 / Kadin 36'}
+  },
+  {
+    key:'montgomerie', name:'The Montgomerie Maxx Royal', sub:'Colin Montgomerie Design · DP World Tour',
+    folder:'Montgomerie_Maxx_Royal',
+    mainImg:'Montgomerie_1.webp',
+    photos:['Montgomerie_1.webp','Montgomerie_2.webp','Montgomerie_3.webp'],
+    desc:`Colin Montgomerie imzali 18 delikli championship parkur. DP World Tour ev sahipligi yapan, gece golfu imkani sunan essiz bir tesis.`,
+    specs:{'Tasarimci':'Colin Montgomerie','Delik':'18','Par':'72','Uzunluk':'6.522 m','Handicap':'Erkek 24 / Kadin 36'}
+  },
+  {
+    key:'gloria_old', name:'Gloria Old Course', sub:'Championship · 18 Delik',
+    folder:'Gloria_Golf_Club',
+    mainImg:'Old_Course_1.webp',
+    photos:['Old_Course_1.webp','Gloria_Genel_1.webp'],
+    desc:`Gloria'nin deneyim dolu klasik parkuru. Cam agaclari arasinda ilerleyen, stratejik acidan zengin bir championship layout.`,
+    specs:{'Delik':'18','Par':'72','Uzunluk':'6.279 m','Handicap':'Erkek 36 / Kadin 40'}
+  },
+  {
+    key:'gloria_new', name:'Gloria New Course', sub:'Championship · 18 Delik',
+    folder:'Gloria_Golf_Club',
+    mainImg:'New_Course_1.webp',
+    photos:['New_Course_1.webp','Gloria_Genel_1.webp'],
+    desc:`Gloria Golf Resort'un modern championship parkuru. Goz alici par-3 12. delik ve kulup binasi onunde biten dramatik final.`,
+    specs:{'Delik':'18','Par':'72','Uzunluk':'6.239 m','Handicap':'Erkek 36 / Kadin 40'}
+  },
+  {
+    key:'gloria_verde', name:'Gloria Verde Course', sub:'Championship · 9 Delik',
+    folder:'Gloria_Golf_Club',
+    mainImg:'Gloria_Genel_1.webp',
+    photos:['Gloria_Genel_1.webp','New_Course_1.webp'],
+    desc:`Yesil doga icinde sakin bir golf deneyimi. Gloria Verde Resort'a ait, aile dostu 9 delikli parkur.`,
+    specs:{'Delik':'9','Par':'36','Handicap':'Erkek 36 / Kadin 40'}
+  },
+  {
+    key:'sueno', name:'Sueno Golf Club', sub:'27 Delik · Pines & Dunes',
+    folder:'Sueno_Golf_Club',
+    mainImg:'Sueno_Genel_1.webp',
+    photos:['Sueno_Genel_1.webp','Sueno_Genel_2.webp','Dunes_1.webp','Dunes_2.webp','Pines_1.webp','Pines_2.webp'],
+    desc:`27 delikli Sueno Golf Club, Pines ve Dunes olmak uzere iki farkli 18 delikli layout sunar. Belek'in en iyi tesislerinden biri.`,
+    specs:{'Delik':'27 (2x18)','Par':'72','Handicap':'Erkek 28 / Kadin 36'}
+  },
+  {
+    key:'kaya_palazzo', name:'Kaya Palazzo Golf Club', sub:'David Jones Design',
+    folder:'Kaya_Palazzo_Golf',
+    mainImg:'Kaya_1.webp',
+    photos:['Kaya_1.webp','Kaya_2.webp','Kaya_3.webp'],
+    desc:`Cam ormanlari arasinda David Jones'un masterpiece tasarimi. Resort'a ait, kolay erisilebilir 18 delikli saha.`,
+    specs:{'Tasarimci':'David Jones','Delik':'18','Par':'72','Handicap':'Erkek 28 / Kadin 36'}
+  },
+  {
+    key:'titanic', name:'Cullinan Links Golf', sub:'Aspendos & Olympos · 36 Delik',
+    folder:'Cullinan_Links',
+    mainImg:'Cullinan_Genel_1.webp',
+    photos:['Cullinan_Genel_1.webp','Aspendos_1.webp','Aspendos_2.webp','Olympos_1.webp','Olympos_2.webp'],
+    desc:`Eski Titanic Golf Club'un yerini alan Cullinan Links. Aspendos ve Olympos olmak uzere iki 18 delikli saha. Gece golfu, buggy bar ve restoran dahil.`,
+    specs:{'Delik':'36 (2x18)','Par':'72','Handicap':'Erkek 36 / Kadin 44'}
+  },
+  {
+    key:'antalya', name:'Antalya Golf Club', sub:'PGA Sultan & Pasha · 36 Delik',
+    folder:'Antalya_Golf_Club',
+    mainImg:'PGA_Sultan_1.webp',
+    photos:['PGA_Sultan_1.webp','PGA_Sultan_2.webp'],
+    desc:`PGA Sultan ve Pasha olmak uzere iki 18 delikli championship saha. Sirene Belek ve Kempinski The Dome otellerine hizmet verir.`,
+    specs:{'Tasarimci':'European Golf Design','Delik':'36 (2x18)','Par':'71-72','Handicap':'Erkek 24-28 / Kadin 28-36'}
+  },
+  {
+    key:'sirene', name:'Sirene Golf Club', sub:'Belek · 18 Delik',
+    folder:'Antalya_Golf_Club',
+    mainImg:'PGA_Sultan_1.webp',
+    photos:['PGA_Sultan_1.webp','PGA_Sultan_2.webp'],
+    desc:`Akdeniz cam ormanlari icinde sakin ve zorlu bir parkur. Antalya Golf Club kompleksine ait ozel bir bolum.`,
+    specs:{'Delik':'18','Par':'72','Handicap':'Erkek 28 / Kadin 36'}
+  },
+  {
+    key:'kempinski', name:'Kempinski Dome Golf', sub:'The Dome Belek · 18 Delik',
+    folder:'Antalya_Golf_Club',
+    mainImg:'PGA_Sultan_2.webp',
+    photos:['PGA_Sultan_2.webp','PGA_Sultan_1.webp'],
+    desc:`Kempinski'nin prestijli golf tesisi, doga ile ic ice. Antalya Golf Club Pasha sahasina erisim.`,
+    specs:{'Delik':'18','Par':'72','Handicap':'Erkek 28 / Kadin 36'}
+  },
+  {
+    key:'lykia', name:'Lykia Links Golf Club', sub:'Perry Dye Design · True Links',
+    folder:'Lykia_Links',
+    mainImg:'Lykia_1.webp',
+    photos:['Lykia_1.webp','Lykia_2.webp'],
+    desc:`Turkiye'nin tek gercek links parkuru. Akdeniz sahilinde, kumullar arasinda 18 delik. Perry Dye tasarimi, demiryolu traversli pot bunkerlar.`,
+    specs:{'Tasarimci':'Perry Dye','Delik':'18','Par':'72','Uzunluk':'7.536 m','Handicap':'Erkek 28 / Kadin 36'}
+  },
+  {
+    key:'robinson', name:'Robinson Nobilis Golf Club', sub:'Belek · 18 Delik',
+    folder:'Robinson_Nobilis',
+    mainImg:'Nobilis_1.webp',
+    photos:['Nobilis_1.webp','Nobilis_2.webp','Nobilis_3.webp','Nobilis_4.webp','Nobilis_5.webp','Nobilis_6.webp'],
+    desc:`Robinson Club Nobilis'e ait, cam ormanlari icinde huzurlu bir 18 delikli parkur.`,
+    specs:{'Delik':'18','Par':'72','Handicap':'Erkek 28 / Kadin 36'}
+  },
+];
+
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let totalRounds = 4, playerCount = 2;
+const playerNames = ['Oyuncu 1','Oyuncu 2'];
+const plan = {}; // plan[courseKey][playerIdx] = rounds
+COURSES.forEach(c=>{ plan[c.key]={}; });
+
+const hotelKey = localStorage.getItem('priveHotel')||'regnum';
+const hotelCourseKey = HOTEL_COURSE_MAP[hotelKey]||'carya';
+const hasMandatoryCourse = !NO_MANDATORY_COURSE.has(hotelKey);
+
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+function totalUsedByPlayer(pi){
+  return COURSES.reduce((sum,c)=>sum+(plan[c.key][pi]||0),0);
+}
+function totalUsed(){
+  let s=0;
+  for(let i=0;i<playerCount;i++) s+=totalUsedByPlayer(i);
+  return s;
+}
+function totalPlanned(){ return totalRounds * playerCount; }
+function courseTotal(key){
+  let s=0;
+  for(let i=0;i<playerCount;i++) s+=plan[key][i]||0;
+  return s;
+}
+function coursePlayers(key){
+  const names=[];
+  for(let i=0;i<playerCount;i++) if((plan[key][i]||0)>0) names.push(playerNames[i]||'Oyuncu '+(i+1));
+  return names;
+}
+function imgPath(course,photo){
+  return course.folder + '/' + photo;
+}
+
+/* ═══════════════════════════════════════
+   PLAYER NAMES UI
+═══════════════════════════════════════ */
+const lockedPlayers=new Set();
+function renderPlayerNames(){
+  const wrap=document.getElementById('playerNames');
+  wrap.innerHTML='';
+  for(let i=0;i<playerCount;i++){
+    const div=document.createElement('div');
+    div.className='pn-input-wrap';
+    const isLocked=lockedPlayers.has(i);
+    const nm=playerNames[i]||'';
+    const display=nm||`Oyuncu ${i+1}`;
+    if(isLocked){
+      const savedName=playerNames[i]||`Oyuncu ${i+1}`;
+      div.innerHTML=`<span class="pn-display" data-pi="${i}" title="Düzenle">${savedName}</span><button class="pn-lock-btn locked" data-pi="${i}">✓</button>`;
+    } else {
+      div.innerHTML=`<input class="pn-input" placeholder="${display}" value="" data-pi="${i}" maxlength="18" autocomplete="off" spellcheck="false"><button class="pn-lock-btn" data-pi="${i}">✓</button>`;
+    }
+    wrap.appendChild(div);
+  }
+  wrap.querySelectorAll('.pn-display').forEach(sp=>{
+    sp.addEventListener('click',()=>{ lockedPlayers.delete(+sp.dataset.pi); renderPlayerNames(); checkAllLocked(); });
+  });
+  wrap.querySelectorAll('.pn-input').forEach(inp=>{
+    inp.addEventListener('input',e=>{ playerNames[+e.target.dataset.pi]=e.target.value; });
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter') inp.closest('.pn-input-wrap').querySelector('.pn-lock-btn').click(); });
+    if(!lockedPlayers.has(+inp.dataset.pi)) setTimeout(()=>{ if(+inp.dataset.pi===playerCount-1) inp.focus(); },50);
+  });
+  wrap.querySelectorAll('.pn-lock-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const pi=+btn.dataset.pi;
+      if(lockedPlayers.has(pi)){
+        lockedPlayers.delete(pi);
+      } else {
+        const inp=btn.closest('.pn-input-wrap').querySelector('.pn-input');
+        playerNames[pi]=(inp&&inp.value.trim())||inp.placeholder||`Oyuncu ${pi+1}`;
+        lockedPlayers.add(pi);
+      }
+      renderPlayerNames();
+      renderCourses();
+      checkAllLocked();
+    });
+  });
+}
+
+/* ═══════════════════════════════════════
+   COURSES UI — NEW CARD DESIGN
+═══════════════════════════════════════ */
+function renderCourses(){
+  const list=document.getElementById('coursesList');
+  list.innerHTML='';
+
+  // Hotel course first
+  const hotel=COURSES.find(c=>c.key===hotelCourseKey);
+  if(hotel) list.appendChild(makeCard(hotel,true));
+  // Others
+  COURSES.forEach(c=>{ if(c.key!==hotelCourseKey) list.appendChild(makeCard(c,false)); });
+
+  updateProgress();
+}
+
+function makeCard(course,isHotel){
+  const key=course.key;
+  const ct=courseTotal(key);
+  const players=coursePlayers(key);
+  const el=document.createElement('div');
+  el.className='cc'+(isHotel?' hotel-cc':'');
+  el.dataset.key=key;
+
+  let summaryText = '';
+  if(ct>0){
+    const parts=[];
+    for(let i=0;i<playerCount;i++){
+      const r=plan[key][i]||0;
+      if(r>0) parts.push(`${playerNames[i]||'Oyuncu '+(i+1)}: ${r} Round`);
+    }
+    summaryText = parts.join('  ·  ');
+  }
+
+  // Specs row
+  const specItems=[];
+  if(course.specs.Delik) specItems.push(`<span class="cc-spec-item"><strong>${course.specs.Delik}</strong> Delik</span>`);
+  if(course.specs.Par) specItems.push(`<span class="cc-spec-item">Par <strong>${course.specs.Par}</strong></span>`);
+  if(course.specs.Uzunluk) specItems.push(`<span class="cc-spec-item">${course.specs.Uzunluk}</span>`);
+
+  el.innerHTML=`
+    <div class="cc-body">
+      <div class="cc-img"><img src="${imgPath(course,course.mainImg)}" alt="${course.name}" onerror="this.style.opacity='.2'"></div>
+      <div class="cc-info">
+        <div class="cc-name">${course.name}</div>
+        <div class="cc-sub">${course.sub}</div>
+        <div class="cc-specs-row">${specItems.join('')}</div>
+        ${isHotel&&hasMandatoryCourse?'<div class="hotel-pin">⛳ Otelinizin Sahası · Min. 1 Round</div>':''}
+        ${isHotel&&!hasMandatoryCourse?'<div class="hotel-pin" style="border-color:rgba(201,169,110,.15);color:rgba(201,169,110,.5)">⛳ Otelinizin Sahası</div>':''}
+        <div class="cc-summary ${ct===0?'empty':''}" id="sum_${key}">${summaryText}</div>
+      </div>
+      <div class="cc-select-col">
+        <button class="btn-select ${ct>0?'has-rounds':''}" data-key="${key}">${ct>0?'Düzenle':'Sahayı Seç'}</button>
+      </div>
+    </div>`;
+
+  return el;
+}
+
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+let activeCourseKey='';
+
+// Card select button click
+document.getElementById('coursesList').addEventListener('click',e=>{
+  const btn=e.target.closest('.btn-select');
+  if(btn){ openCourseModal(btn.dataset.key); }
+});
+
+function openCourseModal(key){
+  activeCourseKey=key;
+  const course=COURSES.find(x=>x.key===key);
+  if(!course) return;
+  const isHotel=key===hotelCourseKey;
+
+  // Photos
+  const ph=document.getElementById('cmPhotos');
+  ph.innerHTML=course.photos.map(p=>`<div class="cm-photo"><img src="${imgPath(course,p)}" onerror="this.style.display='none'" onclick="openLB('${imgPath(course,p)}')"></div>`).join('');
+
+  document.getElementById('cmTitle').textContent=course.name;
+  document.getElementById('cmSub').textContent=course.sub;
+  document.getElementById('cmDesc').textContent=course.desc||'';
+  document.getElementById('cmSpecs').innerHTML=Object.entries(course.specs||{}).map(([l,v])=>`
+    <div class="cm-spec"><div class="cm-spec-l">${l}</div><div class="cm-spec-v">${v}</div></div>`).join('');
+
+  renderModalPlayers(key,isHotel);
+  document.getElementById('cmOv').classList.add('open');
+  document.getElementById('cmBox').scrollTop=0;
+}
+
+function renderModalPlayers(key,isHotel){
+  const wrap=document.getElementById('cmPlayers');
+  wrap.innerHTML='';
+  for(let i=0;i<playerCount;i++){
+    const rds=plan[key][i]||0;
+    const used=totalUsedByPlayer(i);
+    const canPlus=used<totalRounds;
+    const minR=(isHotel&&hasMandatoryCourse)?1:0;
+    const row=document.createElement('div');
+    row.className='cm-player-row';
+    row.innerHTML=`
+      <div class="cm-pr-left">
+        <input type="checkbox" class="cm-checkbox" data-pi="${i}" ${rds>0?'checked':''} ${rds<=minR&&minR>0?'disabled':''}>
+        <div class="cm-pr-name">${playerNames[i]||'Oyuncu '+(i+1)}</div>
+      </div>
+      <div class="cm-stepper">
+        <button class="cm-s-btn cm-minus" data-pi="${i}" ${rds<=minR?'disabled':''}>−</button>
+        <div class="cm-s-val">${rds}</div>
+        <div class="cm-s-lbl">round</div>
+        <button class="cm-s-btn cm-plus" data-pi="${i}" ${!canPlus?'disabled':''}>+</button>
+      </div>`;
+    wrap.appendChild(row);
+  }
+  wrap.querySelectorAll('.cm-checkbox').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      const pi=+cb.dataset.pi;
+      const ih=activeCourseKey===hotelCourseKey;
+      if(cb.checked){
+        if(totalUsedByPlayer(pi)<totalRounds) plan[activeCourseKey][pi]=1;
+        else { cb.checked=false; return; }
+      } else {
+        if(ih&&hasMandatoryCourse){ cb.checked=true; return; }
+        plan[activeCourseKey][pi]=0;
+      }
+      renderModalPlayers(activeCourseKey,ih);
+    });
+  });
+  wrap.querySelectorAll('.cm-s-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const pi=+btn.dataset.pi;
+      const ih=activeCourseKey===hotelCourseKey;
+      const mr=(ih&&hasMandatoryCourse)?1:0;
+      if(btn.classList.contains('cm-minus')){
+        if((plan[activeCourseKey][pi]||0)>mr) plan[activeCourseKey][pi]--;
+      } else {
+        if(totalUsedByPlayer(pi)<totalRounds) plan[activeCourseKey][pi]=(plan[activeCourseKey][pi]||0)+1;
+      }
+      renderModalPlayers(activeCourseKey,ih);
+    });
+  });
+}
+
+function closeCourseModal(){
+  document.getElementById('cmOv').classList.remove('open');
+  updateProgress();
+  renderCourses(); // Re-render cards to show updated summary
+}
+
+document.getElementById('cmClose').addEventListener('click',closeCourseModal);
+document.getElementById('cmDone').addEventListener('click',closeCourseModal);
+document.getElementById('cmOv').addEventListener('click',e=>{ if(e.target.id==='cmOv') closeCourseModal(); });
+
+/* ═══════════════════════════════════════
+   PROGRESS
+═══════════════════════════════════════ */
+function updateProgress(){
+  const used=totalUsed(), tot=totalPlanned();
+  const pct=tot>0?(used/tot*100):0;
+  document.getElementById('progFill').style.width=Math.min(pct,100)+'%';
+  document.getElementById('progCur').textContent=used;
+  document.getElementById('progTot').textContent=tot;
+  document.getElementById('btnNext').classList.toggle('ready',used===tot && tot>0);
+}
+
+/* ═══════════════════════════════════════
+   SETUP CONTROLS
+═══════════════════════════════════════ */
+document.getElementById('rdMinus').onclick=()=>{
+  if(totalRounds>1){
+    totalRounds--;
+    document.getElementById('rdVal').textContent=totalRounds;
+    for(let i=0;i<playerCount;i++){
+      let used=totalUsedByPlayer(i);
+      if(used>totalRounds){
+        COURSES.slice().reverse().forEach(c=>{
+          if(used<=totalRounds) return;
+          const r=plan[c.key][i]||0;
+          if(r>0){ const cut=Math.min(r,used-totalRounds); plan[c.key][i]-=cut; used-=cut; }
+        });
+      }
+    }
+    renderCourses();
+  }
+};
+document.getElementById('rdPlus').onclick=()=>{ totalRounds++; document.getElementById('rdVal').textContent=totalRounds; renderCourses(); };
+
+document.getElementById('plMinus').onclick=()=>{
+  if(playerCount>1){
+    playerCount--;
+    playerNames.splice(playerCount);
+    document.getElementById('plVal').textContent=playerCount;
+    COURSES.forEach(c=>delete plan[c.key][playerCount]);
+    renderPlayerNames(); renderCourses();
+  }
+};
+document.getElementById('plPlus').onclick=()=>{
+  if(playerCount<8){
+    const newIdx=playerCount;
+    if(!playerNames[newIdx]) playerNames[newIdx]='';
+    playerCount++;
+    document.getElementById('plVal').textContent=playerCount;
+    plan[hotelCourseKey][newIdx]=1;
+    renderPlayerNames(); renderCourses(); checkAllLocked();
+  }
+};
+
+/* ═══════════════════════════════════════
+   LIGHTBOX
+═══════════════════════════════════════ */
+function openLB(src){ document.getElementById('lbImg').src=src; document.getElementById('lb').classList.add('open'); }
+document.getElementById('lbClose').onclick=()=>document.getElementById('lb').classList.remove('open');
+document.getElementById('lb').onclick=e=>{ if(e.target===document.getElementById('lb')) document.getElementById('lb').classList.remove('open'); };
+
+/* ═══════════════════════════════════════
+   NEXT
+═══════════════════════════════════════ */
+document.getElementById('btnNext').onclick=()=>{
+  localStorage.setItem('privePlan', JSON.stringify(plan));
+  localStorage.setItem('privePlayerNames', JSON.stringify(playerNames.slice(0,playerCount)));
+  localStorage.setItem('priveTotalRounds', totalRounds);
+  window.location.href='page7.html';
+};
+
+/* Check if all players locked → show courses */
+function checkAllLocked(){
+  const allLocked = Array.from({length:playerCount},(_,i)=>i).every(i=>lockedPlayers.has(i));
+  const wrap=document.getElementById('coursesWrap');
+  const pb=document.getElementById('progBar');
+  const nb=document.getElementById('nextBar');
+  const lm=document.getElementById('lockMsg');
+  if(allLocked){
+    wrap.style.display='';
+    pb.style.display='';
+    nb.style.display='';
+    if(lm) lm.style.display='none';
+  } else {
+    wrap.style.display='none';
+    pb.style.display='none';
+    nb.style.display='none';
+    if(lm) lm.style.display='';
+  }
+}
+
+/* Init */
+renderPlayerNames();
+checkAllLocked();
+// Hotel course: 1 round for all players
+for(let i=0;i<playerCount;i++) plan[hotelCourseKey][i]=1;
+renderCourses();
+</script>
+</body>
+</html>
