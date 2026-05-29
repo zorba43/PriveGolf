@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privé Belek — Deneyim Özeti</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%;background:#060f09;font-family:'Montserrat',sans-serif}
+body{overflow-y:auto;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0}
+.bg img{width:100%;height:100%;object-fit:cover;filter:brightness(.35) saturate(.8)}
+.ov{position:fixed;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,.8) 0%,rgba(0,0,0,.3) 30%,rgba(0,0,0,.2) 60%,rgba(0,0,0,.85) 100%)}
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:200;padding:12px 24px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;background:rgba(6,15,9,.6);backdrop-filter:blur(10px)}
+.back-btn{font-size:9px;letter-spacing:.3em;color:rgba(232,213,168,.75);text-decoration:none;text-transform:uppercase;display:flex;align-items:center;gap:8px;justify-self:start}
+.back-btn::before{content:'←';font-size:13px;color:#C9A96E}
+.step-w{display:flex;flex-direction:column;align-items:center;gap:4px;justify-self:center}
+.step-circle{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(201,169,110,.5);background:rgba(6,15,9,.6)}
+.step-num{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:#E8D5A8}
+.step-lbl{font-size:6.5px;letter-spacing:.4em;text-transform:uppercase;color:#C9A96E;white-space:nowrap}
+.lang-sw{display:flex;gap:2px;justify-self:end}
+.lb2{font-size:9px;color:rgba(245,241,235,.4);background:none;border:none;cursor:pointer;padding:4px 6px;text-transform:uppercase}
+.lb2.active{color:#E8D5A8;font-weight:500}
+.hdr{position:fixed;top:68px;left:0;right:0;z-index:200;text-align:center;padding:0 16px;background:rgba(6,15,9,.4);backdrop-filter:blur(6px);padding-bottom:8px}
+.hdr-title{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,4vw,36px);font-weight:300;letter-spacing:.12em;color:#F5F1EB;text-shadow:0 4px 20px rgba(0,0,0,.8)}
+.hdr-title em{color:#C9A96E;font-style:italic}
+.content-wrap{position:relative;z-index:10;padding-top:135px;padding-bottom:100px}
+.neon-wall{position:relative;margin:0 auto 30px;max-width:900px;padding:0 24px}
+.wall-frame{position:relative;border:2px solid rgba(201,169,110,.3);border-radius:6px;background:rgba(8,20,12,.9);overflow:hidden;box-shadow:0 0 40px rgba(201,169,110,.08)}
+.wall-header{text-align:center;padding:20px 16px 12px;border-bottom:1px solid rgba(201,169,110,.12)}
+.wall-title{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,3vw,26px);font-weight:400;letter-spacing:.1em;color:#F5F1EB}
+.wall-title em{color:#C9A96E;font-style:italic}
+.wall-sub{font-size:7px;letter-spacing:.35em;text-transform:uppercase;color:rgba(201,169,110,.5);margin-top:6px}
+.neon-strip{height:2px;background:linear-gradient(90deg,transparent 0%,#C9A96E 20%,#E8D5A8 50%,#C9A96E 80%,transparent 100%);opacity:.7}
+.sum-section{padding:18px 24px;border-bottom:1px solid rgba(201,169,110,.08)}
+.sum-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sum-label{display:flex;align-items:center;gap:10px}
+.sum-icon{width:32px;height:32px;border-radius:50%;background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.25);display:flex;align-items:center;justify-content:center;font-size:14px;color:#C9A96E;font-family:'Cormorant Garamond',serif}
+.sum-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:400;color:#F5F1EB;letter-spacing:.06em}
+.sum-edit-btn{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#C9A96E;background:transparent;border:1px solid rgba(201,169,110,.3);padding:6px 14px;cursor:pointer;border-radius:2px}
+.sum-content{padding-left:42px}
+.sum-main-img{width:100%;max-width:320px;height:180px;border-radius:4px;overflow:hidden;border:1px solid rgba(201,169,110,.15);margin-bottom:12px;background:rgba(255,255,255,0.05)}
+.sum-main-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.85)}
+.sum-item{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:11px;color:rgba(245,241,235,.7)}
+.sum-item strong{color:#E8D5A8;font-weight:400}
+.sum-item-dot{width:5px;height:5px;border-radius:50%;background:#C9A96E;flex-shrink:0}
+.golf-player-card{border:1px solid rgba(201,169,110,.1);background:rgba(14,30,18,.5);border-radius:3px;padding:10px 14px;margin:6px 0 6px 42px}
+.golf-player-name{font-family:'Cormorant Garamond',serif;font-size:13px;color:#E8D5A8;margin-bottom:6px}
+.golf-course-list{display:flex;flex-wrap:wrap;gap:6px}
+.golf-course-tag{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,241,235,.7);background:rgba(201,169,110,.08);border:.5px solid rgba(201,169,110,.15);padding:4px 10px;border-radius:2px}
+.golf-course-tag strong{color:#C9A96E;font-weight:400}
+.wall-footer{position:relative;padding:16px 24px;background:rgba(6,15,9,.6);border-top:1px solid rgba(201,169,110,.12);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.wall-total-label{font-size:7px;letter-spacing:.3em;text-transform:uppercase;color:rgba(201,169,110,.5)}
+.wall-total-value{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:#E8D5A8}
+.wall-confirm-btn{font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:#060f09;background:#C9A96E;padding:12px 40px;border:none;cursor:pointer;border-radius:2px}
+.contact-ov{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.94);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.contact-ov.open{opacity:1;pointer-events:all}
+.contact-box{width:min(520px,92vw);background:rgba(8,20,12,.97);border:1px solid rgba(201,169,110,.2);border-radius:4px;padding:28px 32px;position:relative}
+.contact-close{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;background:rgba(201,169,110,.15);border:.5px solid rgba(201,169,110,.3);color:#C9A96E;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.contact-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:.08em;color:#F5F1EB;text-align:center;margin-bottom:4px}
+.contact-title em{color:#C9A96E;font-style:italic}
+.contact-sub{font-size:7.5px;letter-spacing:.3em;text-transform:uppercase;color:rgba(201,169,110,.5);text-align:center;margin-bottom:24px}
+.contact-options{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.contact-option{flex:1;min-width:140px;border:1px solid rgba(201,169,110,.15);border-radius:3px;padding:14px 16px;cursor:pointer;transition:all .3s;background:rgba(14,30,18,.4);display:flex;align-items:center;gap:10px}
+.contact-option.selected{border-color:#C9A96E;background:rgba(201,169,110,.08)}
+.contact-option-check{width:18px;height:18px;border:1px solid rgba(201,169,110,.3);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.contact-option.selected .contact-option-check{background:#C9A96E;border-color:#C9A96E}
+.contact-option.selected .contact-option-check::after{content:'✓';font-size:11px;color:#060f09;font-weight:700}
+.contact-option-text{font-size:10px;color:rgba(245,241,235,.7);line-height:1.4}
+.contact-option-text strong{display:block;font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:#C9A96E;margin-bottom:2px;font-weight:400}
+.contact-field{margin-bottom:16px}
+.contact-field-label{font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:rgba(201,169,110,.6);margin-bottom:6px;display:block}
+.contact-input{width:100%;background:rgba(20,35,25,.5);border:1px solid rgba(201,169,110,.2);border-radius:3px;padding:10px 14px;font-size:12px;color:#F5F1EB;font-family:'Montserrat',sans-serif;outline:none}
+.iti{width:100%}
+.iti__country-list{background:#08140c;border:1px solid rgba(201,169,110,.3);color:#F5F1EB}
+.contact-submit{width:100%;font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:#060f09;background:#C9A96E;padding:14px 20px;border:none;cursor:pointer;border-radius:2px;margin-top:4px}
+.contact-submit:disabled{opacity:.4;cursor:not-allowed}
+.success-ov{position:fixed;inset:0;z-index:600;background:#000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s}
+.success-ov.open{opacity:1;pointer-events:all}
+.video-wrap{position:absolute;inset:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.video-wrap video{width:100%;height:100%;object-fit:cover}
+.success-msg-overlay{position:absolute;inset:0;z-index:10;background:rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;opacity:0;transition:opacity 1s ease 1s}
+.success-msg-overlay.show{opacity:1}
+.success-title{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,5vw,40px);font-weight:300;letter-spacing:.1em;color:#F5F1EB;margin-bottom:16px}
+.success-title em{color:#C9A96E;font-style:italic}
+.success-text{font-size:14px;letter-spacing:.2em;text-transform:uppercase;color:#E8D5A8}
+@media (max-width:768px){ .top-bar{padding:10px 16px} .hdr{top:64px} .content-wrap{padding-top:125px} .neon-wall{padding:0 12px} .sum-section{padding:14px 16px} .sum-content{padding-left:0;margin-top:10px} .sum-main-img{height:160px;max-width:100%} .golf-player-card{margin-left:0} }
+</style>
+</head>
+<body>
+<div class="bg"><img src="8.webp" alt=""></div>
+<div class="ov"></div>
+<div class="top-bar">
+  <a href="page6.html" class="back-btn">Geri</a>
+  <div class="step-w"><div class="step-circle"><div class="step-num">06</div></div><div class="step-lbl">Teklif Al</div></div>
+  <div class="lang-sw"><button class="lb2 active" data-lang="tr">TR</button><button class="lb2" data-lang="en">EN</button></div>
+</div>
+<div class="hdr"><h1 class="hdr-title">Privé Belek <em>Deneyim Özeti</em></h1></div>
+<div class="content-wrap">
+  <div class="neon-wall">
+    <div class="wall-frame">
+      <div class="wall-header"><div class="wall-title">Kişiye Özel <em>Seyahat Paketi</em></div><div class="wall-sub">Privé Belek Deneyimi</div></div>
+      <div class="neon-strip"></div>
+      <div class="sum-section" id="secTransfer"><div class="sum-header"><div class="sum-label"><div class="sum-icon">T</div><div class="sum-title">Transfer</div></div><button class="sum-edit-btn" data-edit="transfer">Düzenle</button></div><div id="contentTransfer" class="sum-content"></div></div>
+      <div class="sum-section" id="secHotel"><div class="sum-header"><div class="sum-label"><div class="sum-icon">H</div><div class="sum-title">Otel</div></div><button class="sum-edit-btn" data-edit="hotel">Düzenle</button></div><div id="contentHotel" class="sum-content"></div></div>
+      <div class="sum-section" id="secRoom"><div class="sum-header"><div class="sum-label"><div class="sum-icon">R</div><div class="sum-title">Oda</div></div><button class="sum-edit-btn" data-edit="room">Düzenle</button></div><div id="contentRoom" class="sum-content"></div></div>
+      <div class="sum-section" id="secGolf"><div class="sum-header"><div class="sum-label"><div class="sum-icon">G</div><div class="sum-title">Golf Programı</div></div><button class="sum-edit-btn" data-edit="golf">Düzenle</button></div><div id="contentGolf" class="sum-content"></div></div>
+      <div class="wall-footer"><div><div class="wall-total-label">Toplam Paket</div><div class="wall-total-value">4 Bölüm</div></div><button class="wall-confirm-btn" id="wallConfirm">✓ Onayla</button></div>
+    </div>
+  </div>
+</div>
+<div class="contact-ov" id="contactOv">
+  <div class="contact-box">
+    <button class="contact-close" id="contactClose">✕</button>
+    <div class="contact-title">Teklif <em>Alın</em></div>
+    <div class="contact-sub">Teklifinizi Nasıl Almak İstersiniz?</div>
+    <div class="contact-options">
+      <div class="contact-option" data-channel="email"><div class="contact-option-check"></div><div class="contact-option-text"><strong>E-Posta</strong>Teklifleri e-posta ile almak istiyorum</div></div>
+      <div class="contact-option" data-channel="whatsapp"><div class="contact-option-check"></div><div class="contact-option-text"><strong>Telegram / WhatsApp</strong>Teklifleri mesajla almak istiyorum</div></div>
+    </div>
+    <div id="emailField" style="display:none"><div class="contact-field"><label class="contact-field-label">E-Posta Adresiniz</label><input type="email" class="contact-input" id="emailInput" placeholder="ornek@email.com"></div></div>
+    <div id="phoneField" style="display:none"><div class="contact-field"><label class="contact-field-label">Telefon Numaranız</label><input type="tel" class="contact-input" id="phoneInput"></div></div>
+    <button class="contact-submit" id="contactSubmit" disabled>Teklif Al</button>
+  </div>
+</div>
+<div class="success-ov" id="successOv">
+  <div class="video-wrap"><video id="teklifVideo" playsinline muted><source src="teklif.webm" type="video/webm"></video></div>
+  <div class="success-msg-overlay" id="successMsg"><div class="success-title">Talebiniz <em>Alındı</em></div><div class="success-text">24 Saat içerisinde teklifimiz iletilecektir</div></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+<script>
+/* ═══════════════════════════════════════
+   KESİN ÇÖZÜM: Orijinal Sayfa Yolları (Sync)
+═══════════════════════════════════════ */
+
+const SYNC_DATA = {
+  hotels: {
+    'regnum': { name: 'Regnum Carya', folder: '08_REGNUM_CARYA', hero: 'otel_ana_gorselleri/REGNUM_CARYA_GOLF_RESORT.webp' },
+    'cornelia': { name: 'Cornelia Diamond', folder: '02_CORNELIA_DIAMOND', hero: 'otel_ana_gorselleri/CORNELIA_DIAMOND_GOLF&SPA.webp' },
+    'gloria': { name: 'Gloria Serenity', folder: '16_GLORIA_SERENITY_RESORT', hero: 'otel_ana_gorselleri/GLORIA_SERENITY_RESORT.webp' },
+    'kaya': { name: 'Kaya Palazzo', folder: '04_KAYA_PALAZZO', hero: 'otel_ana_gorselleri/KAYA_PALAZZO_GOLF_RESORT.webp' },
+    'sueno-deluxe': { name: 'Sueno Hotels Deluxe', folder: '01_SUENO_DELUXE_BELEK', hero: 'otel_ana_gorselleri/SUENO_HOTELS_DELUXE_BELEK.webp' },
+    'sueno-golf': { name: 'Sueno Hotels Golf', folder: '03_SUENO_GOLF_BELEK', hero: 'otel_ana_gorselleri/SUENO_HOTELS_GOLF_BELEK.webp' },
+    'titanic': { name: 'Titanic Deluxe Golf', folder: '06_TITANIC_DELUXE_GOLF', hero: 'otel_ana_gorselleri/TITANIC_DELUXE_GOLF_BELEK.webp' },
+    'maxxroyal': { name: 'Maxx Royal Belek', folder: '07_MAXX_ROYAL_BELEK', hero: 'otel_ana_gorselleri/MAXX_ROYAL_BELEK_GOLF_RESORT.webp' },
+    'sirene': { name: 'Sirene Belek Hotel', folder: '09_SIRENE_BELEK', hero: 'otel_ana_gorselleri/SIRENE_BELEK_HOTEL.webp' },
+    'kempinski': { name: 'Kempinski Hotel The Dome', folder: '10_KEMPINSKI_THE_DOME', hero: 'otel_ana_gorselleri/KEMPINSKI_HOTEL_THE_DOME.webp' },
+    'lykia': { name: 'Lykia World Antalya', folder: '11_LYKIA_WORLD_ANTALYA', hero: 'otel_ana_gorselleri/LYKIA_WORLD_ANTALYA.webp' },
+    'voyage': { name: 'Voyage Belek Golf & Spa', folder: '12_VOYAGE_BELEK', hero: 'otel_ana_gorselleri/VOYAGE_BELEK_GOLF&SPA.webp' },
+    'gloria-golf': { name: 'Gloria Golf Resort', folder: '13_GLORIA_GOLF_RESORT', hero: 'otel_ana_gorselleri/GLORIA_GOLF_RESORT.webp' },
+    'cullinan': { name: 'Cullinan Belek', folder: '14_CULLINAN_GOLF_RESORT', hero: 'otel_ana_gorselleri/CULLINAN_GOLF_RESORT.webp' },
+    'gloria-verde': { name: 'Gloria Verde Resort', folder: '15_GLORIA_VERDE_RESORT', hero: 'otel_ana_gorselleri/GLORIA_VERDE_RESORT.webp' },
+    'kaya-belek': { name: 'Kaya Belek Hotel', folder: '05_KAYA_BELEK', hero: 'otel_ana_gorselleri/KAYA_BELEK_HOTEL.webp' }
+  },
+  rooms: {
+    'Deluxe Room': 'Deluxe_Room_1.jpg',
+    'Deluxe Room Infinity': 'Deluxe_Room_Infinity_1.webp',
+    'Deluxe Suite': 'Deluxe_Suite_Room.webp',
+    'Deluxe Sueno Suite': 'Deluxe_Sueno_Suite_1.webp',
+    'Superior Suite': 'Superior_Sueno_Suite.webp',
+    'Superior Suite Exclusive': 'Superior_Sueno_Suite.webp',
+    'Superior Sueno Suite': 'Superior_Sueno_Suite.webp',
+    'King Suite': 'King_Suite.jpg',
+    'Island Villa': 'Island_Villa.webp',
+    'Standard Room': 'Standard_Room_1.webp',
+    'Executive Classic Room': 'Executive_Classic_Room.jpg',
+    'Family Garden Room': 'Family_Room.jpg',
+    'Family Lake Room': 'Lake_Family_Room_1.webp',
+    'Golf Suite': 'Golf_Suite.jpeg',
+    'Blue Suite': 'Blue_Suite.jpg',
+    'Diamond Suite': 'Diamond_Suite_Pool_1.webp',
+    'Presidential Suite': 'Presidential_Suite.jpg',
+    'Lake Villa': 'Lake_Villa_1.webp',
+    'Senior Room': 'Senior_Room.jpg',
+    'Junior Suite': 'Junior_Suite_Room.webp',
+    'Jacuzzi Suite': 'Jacuzzi_Suite.jpg',
+    'Suite Room': 'Suite_Room.webp',
+    'Jade Room': 'Jade_Room.webp',
+    'Jade Suite': 'Jade_Suite.webp',
+    'Pearl Pool Room': 'Pearl_Pool_Room.webp',
+    'Tiara Villa': 'Tiara_Villa.webp',
+    'Superior Room Sea View': 'Superior_Room_Sea_View_1.webp',
+    'Swim-Up Superior Room': 'Superior_Room_SwimUp.webp',
+    'Suite Sea View': 'Suite_SeaView.webp',
+    'Palazzo Suite Sea View': 'Palazzo_Suite_SeaView.webp',
+    'Luxury Lagoon Suite': 'Luxury_Lagoon_Suite_1.webp',
+    'Golf Villa (3 Yatak Odalı)': 'Golf_Villa_3Bedroom.webp',
+    'SwimUp Villa (3 Yatak Odalı)': 'SwimUp_Villa_3Bedroom.webp',
+    'Maldives Villa (3 Yatak Odalı)': 'Maldives_Villa_3Bedroom.webp',
+    'Palazzo Mansion': 'Palazzo_Mansion_1.webp'
+  },
+  transfers: {
+    sedan: { name: 'Premium Sedan', img: 'vehicle-sedan.png' },
+    mpv: { name: 'Premium MPV', img: 'vehicle-mpv.png' },
+    helicopter: { name: 'Helikopter', img: 'vehicle-heli.png' }
+  }
+};
+
+function renderSummary(){
+  // 1. Transfer
+  const transKey = localStorage.getItem('priveTransfer') || 'sedan';
+  const tr = SYNC_DATA.transfers[transKey] || SYNC_DATA.transfers.sedan;
+  document.getElementById('contentTransfer').innerHTML = `<div class="sum-main-img"><img src="${tr.img}"></div><div class="sum-item"><div class="sum-item-dot"></div><strong>Araç:</strong> ${tr.name}</div>`;
+
+  // 2. Hotel
+  const hotelKey = localStorage.getItem('priveHotel') || 'regnum';
+  const ht = SYNC_DATA.hotels[hotelKey] || SYNC_DATA.hotels.regnum;
+  document.getElementById('contentHotel').innerHTML = `<div class="sum-main-img"><img src="${ht.hero}"></div><div class="sum-item"><div class="sum-item-dot"></div><strong>Otel:</strong> ${ht.name}</div>`;
+
+  // 3. Room
+  const roomName = localStorage.getItem('priveRoom');
+  const roomImgFile = SYNC_DATA.rooms[roomName] || 'Standard_Room_1.webp';
+  // Resim doğrudan otel klasöründe
+  const roomImgPath = `${ht.folder}/${roomImgFile}`;
+  document.getElementById('contentRoom').innerHTML = `<div class="sum-main-img"><img src="${roomImgPath}"></div><div class="sum-item"><div class="sum-item-dot"></div><strong>Oda:</strong> ${roomName || 'Seçilmedi'}</div>`;
+
+  // 4. Golf
+  const plan = JSON.parse(localStorage.getItem('privePlan')) || {};
+  const players = JSON.parse(localStorage.getItem('privePlayerNames')) || ['Misafir'];
+  const courses = [ { key:'carya', name:'Carya Golf Club' }, { key:'national', name:'National Golf Club' }, { key:'montgomerie', name:'Montgomerie Maxx Royal' }, { key:'cornelia', name:'Cornelia Golf Club' } ];
+  let golfHTML = '';
+  players.forEach((name, pi) => {
+    const pCourses = [];
+    courses.forEach(c => { if(plan[c.key]?.[pi] > 0) pCourses.push(`<span class="golf-course-tag">${c.name} <strong>${plan[c.key][pi]}R</strong></span>`); });
+    if(pCourses.length > 0) golfHTML += `<div class="golf-player-card"><div class="golf-player-name">${pi+1}. ${name}</div><div class="golf-course-list">${pCourses.join('')}</div></div>`;
+  });
+  document.getElementById('contentGolf').innerHTML = golfHTML || '<div class="sum-item">Golf seçimi yapılmadı.</div>';
+}
+
+document.querySelectorAll('.sum-edit-btn').forEach(btn => {
+  btn.onclick = () => { localStorage.setItem('editMode', 'true'); window.location.href = { transfer: 'page3.html', hotel: 'page4.html', room: 'page5.html', golf: 'page6.html' }[btn.dataset.edit]; };
+});
+
+document.getElementById('wallConfirm').onclick = () => document.getElementById('contactOv').classList.add('open');
+document.getElementById('contactClose').onclick = () => document.getElementById('contactOv').classList.remove('open');
+
+const phoneInput = document.getElementById('phoneInput');
+const iti = window.intlTelInput(phoneInput, { initialCountry: "tr", preferredCountries: ["tr", "gb", "de", "ru"], separateDialCode: true, utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js" });
+
+const selectedChannels = new Set();
+document.querySelectorAll('.contact-option').forEach(opt => {
+  opt.onclick = () => {
+    const ch = opt.dataset.channel;
+    if(selectedChannels.has(ch)) { selectedChannels.delete(ch); opt.classList.remove('selected'); }
+    else { selectedChannels.add(ch); opt.classList.add('selected'); }
+    document.getElementById('emailField').style.display = selectedChannels.has('email') ? 'block' : 'none';
+    document.getElementById('phoneField').style.display = selectedChannels.has('whatsapp') ? 'block' : 'none';
+    updateSubmitBtn();
+  };
+});
+
+function updateSubmitBtn(){
+  const email = document.getElementById('emailInput').value.trim();
+  const phone = phoneInput.value.trim();
+  let valid = selectedChannels.size > 0;
+  if(selectedChannels.has('email') && !email) valid = false;
+  if(selectedChannels.has('whatsapp') && !phone) valid = false;
+  document.getElementById('contactSubmit').disabled = !valid;
+}
+document.getElementById('emailInput').oninput = updateSubmitBtn;
+phoneInput.oninput = updateSubmitBtn;
+
+document.getElementById('contactSubmit').onclick = () => {
+  document.getElementById('contactOv').classList.remove('open');
+  const successOv = document.getElementById('successOv');
+  const video = document.getElementById('teklifVideo');
+  const msg = document.getElementById('successMsg');
+  successOv.classList.add('open');
+  video.play();
+  video.onended = () => msg.classList.add('show');
+  setTimeout(() => msg.classList.add('show'), 5000);
+};
+
+renderSummary();
+</script>
+</body>
+</html>
